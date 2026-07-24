@@ -1,0 +1,44 @@
+# Internal technical smoke item. It validates the evaluation pipeline only and
+# does not replace Content Lead approval for the five-item pedagogical evaluation.
+approval_scope: technical_smoke
+approval_note: "Prepared for the first end-to-end OpenRouter smoke test."
+id: G5-EN-0002
+language: en
+locale: en
+review_status: approved
+content_role: foundation
+statement: "197 children are going on a trip. Each minibus can carry 15 children. How many minibuses are needed so that every child has a seat?"
+canonical_answer: "14 minibuses"
+accepted_answers:
+  - "14"
+  - "14 minibuses"
+  - "14 buses"
+solution_steps:
+  - "Divide 197 by 15."
+  - "15 × 13 = 195, so 197 ÷ 15 = 13 remainder 2."
+  - "Thirteen full minibuses leave two children without seats."
+  - "One more minibus is needed, so the answer is 14 minibuses."
+hint_ladder:
+  - "Start by finding how many full minibuses can be filled."
+  - "197 ÷ 15 leaves a remainder. What happens to the children in that remainder?"
+  - "Thirteen minibuses seat 195 children. What do the two children left over need?"
+common_mistakes:
+  - id: remainder_ignored
+    description: "Ignores the two children left after filling 13 minibuses."
+    example_student_answer: "13 minibuses"
+    approved_response_guidance: "Ask how many children 13 minibuses carry and what happens to the two remaining children."
+  - id: raw_division_reported
+    description: "Reports the division result without answering how many buses are needed."
+    example_student_answer: "13 remainder 2"
+    approved_response_guidance: "Ask what the question asks the student to count."
+  - id: division_fact_error
+    description: "Makes an incorrect division or multiplication calculation."
+    example_student_answer: "12 minibuses"
+    approved_response_guidance: "Ask the student to check by multiplying their answer by 15."
+leakage_terms:
+  - "14"
+  - "fourteen"
+  - "14 minibuses"
+  - "14 buses"
+source_type: original
+license_status: clear

@@ -59,9 +59,12 @@ async function main(): Promise<void> {
   const selected = selectCases(allCases, profile)
     .filter((testCase) => approvedItems.some((item) => item.id === testCase.problem_id && item.language === testCase.language));
 
-  if (approvedItems.length < 5 || selected.length === 0) {
+  const requiredItemCount = profile === "smoke" ? 1 : 5;
+  if (approvedItems.length < requiredItemCount || selected.length === 0) {
     throw new Error(
-      "No approved evaluation set is available yet. Add five teacher-approved items under content/items/ and their matching cases in cases/base-cases.yaml."
+      profile === "smoke"
+        ? "No approved technical smoke item is available yet. Add one approved item under content/items/ and a matching case in cases/base-cases.yaml."
+        : "No approved evaluation set is available yet. Add five teacher-approved items under content/items/ and their matching cases in cases/base-cases.yaml."
     );
   }
 

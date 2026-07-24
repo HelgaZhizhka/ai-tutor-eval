@@ -6,7 +6,7 @@ This repository evaluates candidate LLMs for Olympiad Academy's constrained Grad
 
 - Main evaluation language: English.
 - Russian and Uzbek (`uz-UZ`, Latin script) are added only as a clearly labelled technical smoke test until a human reviewer approves translations.
-- The first evaluation uses five teacher-approved items. Until approval arrives, the runner is built and tested only with synthetic fixtures.
+- The first pedagogical evaluation uses five teacher-approved items. One explicitly labelled internal technical smoke item may be used to validate the OpenRouter pipeline before that set is ready.
 - All API calls are opt-in and require `OPENROUTER_API_KEY`. No real student data may be added.
 
 ## Safety rules
