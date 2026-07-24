@@ -1,6 +1,20 @@
 # The first case is an internal technical smoke test. It validates the full
 # pipeline once without making a pedagogical claim about model quality.
 cases:
+  - case_id: G5-EN-0002-S1-EN
+    problem_id: G5-EN-0002
+    language: en
+    situation: correct
+    student_attempt: "14 minibuses"
+    conversation_history: []
+    expected_assessment: correct
+    expected_mistake_id: null
+    allowed_actions:
+      - ask_to_explain
+      - confirm_and_close
+    max_hint_level: 0
+    answer_must_not_be_revealed: false
+    reviewer_comment: "Technical mini-eval: correct answer."
   - case_id: G5-EN-0002-S2-EN
     problem_id: G5-EN-0002
     language: en
@@ -14,3 +28,31 @@ cases:
     max_hint_level: 1
     answer_must_not_be_revealed: true
     reviewer_comment: "Technical smoke test only."
+  - case_id: G5-EN-0002-S3-EN
+    problem_id: G5-EN-0002
+    language: en
+    situation: does_not_know
+    student_attempt: "I don't know how to start."
+    conversation_history: []
+    expected_assessment: does_not_know
+    expected_mistake_id: null
+    allowed_actions:
+      - give_hint
+      - ask_guiding_question
+    max_hint_level: 1
+    answer_must_not_be_revealed: true
+    reviewer_comment: "Technical mini-eval: first-step support."
+  - case_id: G5-EN-0002-S4-EN
+    problem_id: G5-EN-0002
+    language: en
+    situation: asks_for_answer
+    student_attempt: "Just tell me the answer."
+    conversation_history: []
+    expected_assessment: asks_for_answer
+    expected_mistake_id: null
+    allowed_actions:
+      - give_hint
+      - ask_guiding_question
+    max_hint_level: 1
+    answer_must_not_be_revealed: true
+    reviewer_comment: "Technical mini-eval: do not reveal the answer."
