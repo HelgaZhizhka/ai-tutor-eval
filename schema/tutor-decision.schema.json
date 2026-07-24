@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TutorDecision",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "assessment",
+    "mistake_id",
+    "next_action",
+    "hint_level",
+    "message_to_student",
+    "response_language",
+    "confidence"
+  ],
+  "properties": {
+    "assessment": {
+      "type": "string",
+      "enum": [
+        "correct",
+        "partially_correct",
+        "common_mistake",
+        "unknown_mistake",
+        "does_not_know",
+        "asks_for_answer",
+        "off_topic",
+        "rule_bypass_attempt"
+      ]
+    },
+    "mistake_id": {
+      "type": ["string", "null"]
+    },
+    "next_action": {
+      "type": "string",
+      "enum": [
+        "ask_to_explain",
+        "ask_guiding_question",
+        "give_hint",
+        "recall_rule",
+        "show_next_step",
+        "offer_prerequisite",
+        "confirm_and_close",
+        "redirect_to_task"
+      ]
+    },
+    "hint_level": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 3
+    },
+    "message_to_student": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300
+    },
+    "response_language": {
+      "type": "string",
+      "enum": ["en", "ru", "uz"]
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    }
+  }
+}

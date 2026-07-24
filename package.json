@@ -1,0 +1,26 @@
+{
+  "name": "ai-tutor-eval",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Reproducible evaluation harness for Olympiad Academy's constrained Grade 5 math tutor.",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "eval:smoke": "tsx src/cli.ts smoke",
+    "eval:screening": "tsx src/cli.ts screening",
+    "eval:shortlist": "tsx src/cli.ts shortlist"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "dotenv": "^16.4.7",
+    "yaml": "^2.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  }
+}

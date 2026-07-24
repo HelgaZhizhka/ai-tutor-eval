@@ -1,0 +1,14 @@
+# This is a template only. Replace placeholders after Content Lead approval.
+# Language-independent logic lives here; localized student attempts are generated separately.
+cases:
+  - case_id: PLACEHOLDER-S1
+    problem_id: PLACEHOLDER
+    situation: correct
+    student_attempt: ""
+    conversation_history: []
+    expected_assessment: correct
+    expected_mistake_id: null
+    allowed_actions: [ask_to_explain, confirm_and_close]
+    max_hint_level: 0
+    answer_must_not_be_revealed: false
+    reviewer_comment: ""
