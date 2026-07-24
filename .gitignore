@@ -1,0 +1,15 @@
+.DS_Store
+node_modules/
+dist/
+coverage/
+
+# Local secrets. Keep the documented template under version control.
+.env
+.env.*
+!.env.example
+
+# Generated evaluation output.
+results/raw/
+results/*.csv
+results/*.md
+*.log
