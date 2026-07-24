@@ -37,6 +37,7 @@ export async function callOpenRouter(input: {
       "Content-Type": "application/json",
       "X-Title": "Olympiad Academy AI Tutor Evaluation"
     },
+    signal: AbortSignal.timeout(30_000),
     body: JSON.stringify({
       model: input.model,
       messages: [
