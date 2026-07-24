@@ -10,6 +10,4 @@ coverage/
 
 # Generated evaluation output.
 results/raw/
-results/*.csv
-results/*.md
 *.log
