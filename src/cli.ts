@@ -155,7 +155,8 @@ async function main(): Promise<void> {
     }
   }
 
-  const report = await writeSummary(results, `${new Date().toISOString().slice(0, 10)}-${profile}`);
+  const reportTimestamp = new Date().toISOString().replace(/[:.]/gu, "-");
+  const report = await writeSummary(results, `${reportTimestamp}-${profile}`);
   const failures = results.filter((result) => result.error || result.assertions.some((assertion) => assertion.severity === "gate" && !assertion.passed));
   const actualCost = results.reduce((total, result) => total + (result.cost_usd ?? 0), 0);
   console.log(`Completed ${results.length} calls. Critical failures=${failures.length}. Actual reported cost=$${actualCost.toFixed(4)}.`);

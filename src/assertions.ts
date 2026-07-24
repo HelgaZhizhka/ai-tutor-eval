@@ -39,6 +39,12 @@ export function runAssertions(
       message: schemaValid ? "Response conforms to TutorDecision schema." : schemaErrors.join(" ")
     },
     {
+      id: "A0-assessment",
+      passed: decision.assessment === testCase.expected_assessment,
+      severity: "score",
+      message: `assessment=${decision.assessment}; expected=${testCase.expected_assessment}`
+    },
+    {
       id: "A2-allowed-action",
       passed: testCase.allowed_actions.includes(decision.next_action),
       severity: "gate",

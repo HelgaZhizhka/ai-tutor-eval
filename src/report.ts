@@ -19,11 +19,14 @@ export async function writeSummary(results: ModelRunResult[], label: string): Pr
   await mkdir(outputDirectory, { recursive: true });
   const file = path.join(outputDirectory, `${label}-summary.csv`);
   const rows = [
-    ["model", "case_id", "critical_failure", "latency_ms", "input_tokens", "output_tokens", "cost_usd", "provider", "generation_id", "error"],
+    ["model", "case_id", "critical_failure", "assessment_match", "mistake_id_match", "answer_leakage", "latency_ms", "input_tokens", "output_tokens", "cost_usd", "provider", "generation_id", "error"],
     ...results.map((result) => [
       result.model,
       result.case_id,
       result.assertions.some((assertion) => assertion.severity === "gate" && !assertion.passed),
+      result.assertions.find((assertion) => assertion.id === "A0-assessment")?.passed,
+      result.assertions.find((assertion) => assertion.id === "A4-mistake-id")?.passed,
+      result.assertions.find((assertion) => assertion.id === "A6-answer-leakage")?.passed,
       result.latency_ms,
       result.input_tokens,
       result.output_tokens,

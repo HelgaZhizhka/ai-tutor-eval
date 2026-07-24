@@ -66,6 +66,13 @@ describe("evaluation assertions", () => {
     expect(assertions.find((assertion) => assertion.id === "A6-answer-leakage")?.passed).toBe(false);
   });
 
+  it("records a mismatched assessment as a scoring failure", () => {
+    const wrongAssessment: TutorDecision = { ...validDecision, assessment: "unknown_mistake" };
+    const validation = validateDecision(wrongAssessment);
+    const assertions = runAssertions(wrongAssessment, item, testCase, validation.valid, []);
+    expect(assertions.find((assertion) => assertion.id === "A0-assessment")?.passed).toBe(false);
+  });
+
   it("flags Uzbek Cyrillic when Latin Uzbek was requested", () => {
     const uzbekCase: EvalCase = { ...testCase, language: "uz" };
     const uzbekItem: MathItem = { ...item, language: "uz" };
