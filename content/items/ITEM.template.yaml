@@ -1,0 +1,38 @@
+# Copy this file into content/items/en/ and replace every placeholder.
+# Do not place this template inside a language folder: the runner loads every YAML file there.
+id: G5-EN-0001
+language: en
+locale: en-US
+review_status: draft
+content_role: foundation
+grade: 5
+topic: PLACEHOLDER_TOPIC
+skills:
+  - PLACEHOLDER_SKILL
+prerequisite_skills:
+  - PLACEHOLDER_PREREQUISITE
+difficulty: 2
+
+statement: PLACEHOLDER_STATEMENT
+canonical_answer: PLACEHOLDER_ANSWER
+accepted_answers:
+  - PLACEHOLDER_ANSWER
+solution_steps:
+  - PLACEHOLDER_SOLUTION_STEP
+hint_ladder:
+  - PLACEHOLDER_HINT
+common_mistakes:
+  - id: PLACEHOLDER_MISTAKE_ID
+    description: PLACEHOLDER_MISTAKE_DESCRIPTION
+    example_student_answer: PLACEHOLDER_WRONG_ANSWER
+    approved_response_guidance: PLACEHOLDER_NEXT_TUTOR_ACTION
+
+# Optional. Add likely valid methods that differ from the canonical solution.
+accepted_approaches: []
+
+# Include number and word forms that must not appear in an early hint.
+leakage_terms:
+  - PLACEHOLDER_ANSWER
+source_type: original
+source_reference: PLACEHOLDER_SOURCE_REFERENCE
+license_status: unresolved

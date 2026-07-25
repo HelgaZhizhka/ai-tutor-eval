@@ -52,6 +52,11 @@ export interface MathItem {
   script?: "Latn" | "Cyrl";
   review_status: "draft" | "approved" | "rejected";
   content_role: "diagnostic" | "foundation" | "olympiad";
+  grade?: number;
+  topic?: string;
+  skills?: string[];
+  prerequisite_skills?: string[];
+  difficulty?: number;
   statement: string;
   canonical_answer: string;
   accepted_answers: string[];
@@ -61,6 +66,7 @@ export interface MathItem {
   accepted_approaches?: AcceptedApproach[];
   leakage_terms: string[];
   source_type: "original" | "adapted";
+  source_reference?: string;
   license_status: "clear" | "unresolved";
 }
 
@@ -101,6 +107,8 @@ export interface ModelRunResult {
   input_tokens?: number;
   output_tokens?: number;
   cost_usd?: number;
+  request_attempts: number;
   assertions: AssertionResult[];
   error?: string;
+  infrastructure_error?: boolean;
 }

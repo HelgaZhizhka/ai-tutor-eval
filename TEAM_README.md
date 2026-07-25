@@ -127,6 +127,9 @@ This is a fixed 20-scenario set for the first model selection. If a later prompt
 - The model cannot decide mastery, topic completion or the next exercise.
 - A rule-bypass misclassification is a critical failure.
 - OpenRouter automatic provider fallback is disabled; an untested model will not silently answer in its place.
+- Every task and scenario YAML file is validated before any API call. A typo or invalid reference stops the run instead of being counted as a model failure.
+- Temporary API failures are retried up to three times. An unresolved provider error is reported separately and does not lower a model's behavioural gate pass rate.
+- A shortlist with the same model ID twice is rejected before cost estimation.
 - Every paid run requires an explicit confirmation and an estimated-cost check.
 - Reports record the model, provider, prompt version, latency, tokens and actual cost. Raw responses stay local.
 

@@ -10,6 +10,7 @@ The tutor is only as safe and useful as its task content. A task cannot be consi
 | --- | --- |
 | Stable task ID | Links the task, evaluation cases and later learner progress. |
 | Language and locale | Ensures the correct student-facing version is used. |
+| Grade, topic, skills and difficulty | Describe where the task belongs in the initial learning map. |
 | Review and approval status | Prevents draft content entering a pedagogical evaluation. |
 | Statement | The student-facing problem. |
 | Canonical answer and accepted answer forms | Gives a reliable outcome to check against. |
@@ -21,9 +22,12 @@ The tutor is only as safe and useful as its task content. A task cannot be consi
 | Answer-leakage terms | Supports automatic checks that the tutor did not reveal the result too early. |
 | Source and licence status | Confirms that the item is appropriate for use. |
 
+Use [the item template](../content/items/ITEM.template.yaml) as the starting point for a new task. The evaluation runner validates this structure before it sends any API request.
+Use [the scenario template](../cases/base-cases.template.yaml) for the matching student scenarios.
+
 ## Alternative approaches
 
-The Content Lead does not need to enumerate every mathematically valid solution. However, when a task has an important or likely alternative strategy, it should be recorded as an optional `accepted_approach`:
+The Content Lead does not need to enumerate every mathematically valid solution. However, when a task has an important or likely alternative strategy, it should be recorded in the optional `accepted_approaches` list:
 
 ```yaml
 accepted_approaches:

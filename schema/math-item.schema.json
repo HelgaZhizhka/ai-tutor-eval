@@ -1,0 +1,78 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MathItem",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "language",
+    "review_status",
+    "content_role",
+    "statement",
+    "canonical_answer",
+    "accepted_answers",
+    "solution_steps",
+    "hint_ladder",
+    "common_mistakes",
+    "leakage_terms",
+    "source_type",
+    "license_status"
+  ],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "language": { "type": "string", "enum": ["en", "ru", "uz"] },
+    "locale": { "type": "string", "minLength": 1 },
+    "script": { "type": "string", "enum": ["Latn", "Cyrl"] },
+    "review_status": { "type": "string", "enum": ["draft", "approved", "rejected"] },
+    "content_role": { "type": "string", "enum": ["diagnostic", "foundation", "olympiad"] },
+    "grade": { "type": "integer", "minimum": 1, "maximum": 12 },
+    "topic": { "type": "string", "minLength": 1 },
+    "skills": { "$ref": "#/definitions/nonEmptyStrings" },
+    "prerequisite_skills": { "$ref": "#/definitions/nonEmptyStrings" },
+    "difficulty": { "type": "integer", "minimum": 1, "maximum": 5 },
+    "statement": { "type": "string", "minLength": 1 },
+    "canonical_answer": { "type": "string", "minLength": 1 },
+    "accepted_answers": { "$ref": "#/definitions/nonEmptyStrings" },
+    "solution_steps": { "$ref": "#/definitions/nonEmptyStrings" },
+    "hint_ladder": { "$ref": "#/definitions/nonEmptyStrings" },
+    "common_mistakes": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/commonMistake" }
+    },
+    "accepted_approaches": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/acceptedApproach" }
+    },
+    "leakage_terms": { "$ref": "#/definitions/nonEmptyStrings" },
+    "source_type": { "type": "string", "enum": ["original", "adapted"] },
+    "source_reference": { "type": "string", "minLength": 1 },
+    "license_status": { "type": "string", "enum": ["clear", "unresolved"] }
+  },
+  "definitions": {
+    "nonEmptyStrings": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "commonMistake": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "description", "approved_response_guidance"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "description": { "type": "string", "minLength": 1 },
+        "example_student_answer": { "type": "string" },
+        "approved_response_guidance": { "type": "string", "minLength": 1 }
+      }
+    },
+    "acceptedApproach": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "recognition_guidance"],
+      "properties": {
+        "label": { "type": "string", "minLength": 1 },
+        "recognition_guidance": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

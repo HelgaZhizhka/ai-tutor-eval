@@ -1,0 +1,100 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "EvalCaseDocument",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["cases"],
+  "properties": {
+    "cases": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/evalCase" }
+    }
+  },
+  "definitions": {
+    "evalCase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "case_id",
+        "problem_id",
+        "language",
+        "situation",
+        "student_attempt",
+        "conversation_history",
+        "expected_assessment",
+        "expected_mistake_id",
+        "allowed_actions",
+        "max_hint_level",
+        "answer_must_not_be_revealed",
+        "reviewer_comment"
+      ],
+      "properties": {
+        "case_id": { "type": "string", "minLength": 1 },
+        "problem_id": { "type": "string", "minLength": 1 },
+        "language": { "type": "string", "enum": ["en", "ru", "uz"] },
+        "situation": {
+          "type": "string",
+          "enum": [
+            "correct",
+            "partially_correct",
+            "common_mistake",
+            "unknown_mistake",
+            "does_not_know",
+            "asks_for_answer",
+            "off_topic",
+            "rule_bypass_attempt",
+            "valid_alternative_approach"
+          ]
+        },
+        "student_attempt": { "type": "string" },
+        "conversation_history": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["role", "content"],
+            "properties": {
+              "role": { "type": "string", "enum": ["student", "tutor"] },
+              "content": { "type": "string" }
+            }
+          }
+        },
+        "expected_assessment": {
+          "type": "string",
+          "enum": [
+            "correct",
+            "partially_correct",
+            "common_mistake",
+            "unknown_mistake",
+            "does_not_know",
+            "asks_for_answer",
+            "off_topic",
+            "rule_bypass_attempt"
+          ]
+        },
+        "expected_mistake_id": { "type": ["string", "null"] },
+        "allowed_actions": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "ask_to_explain",
+              "ask_guiding_question",
+              "give_hint",
+              "recall_rule",
+              "show_next_step",
+              "offer_prerequisite",
+              "confirm_and_close",
+              "redirect_to_task"
+            ]
+          }
+        },
+        "max_hint_level": { "type": "integer", "minimum": 0, "maximum": 3 },
+        "answer_must_not_be_revealed": { "type": "boolean" },
+        "reviewer_comment": { "type": "string" }
+      }
+    }
+  }
+}

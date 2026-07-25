@@ -3,9 +3,10 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { runAssertions } from "./assertions.js";
 import { buildTutorContext, loadTutorPrompt, TUTOR_PROMPT_VERSION } from "./build-request.js";
-import { loadCases, loadItems, selectedApprovedItems } from "./content.js";
+import { loadCases, loadItems, selectedApprovedItems, validateContentRelations } from "./content.js";
 import { estimateCostUsd, fetchModelPricing } from "./model-catalog.js";
-import { callOpenRouter } from "./openrouter.js";
+import { callOpenRouter, MAX_OUTPUT_TOKENS, OpenRouterRequestError } from "./openrouter.js";
+import { requireUniqueModels } from "./model-list.js";
 import { writeModelScorecard, writeRawResult, writeSummary } from "./report.js";
 import { validateDecision } from "./schema.js";
 import type { EvalCase, ModelRunResult } from "./types.js";
@@ -32,12 +33,12 @@ function parseShortlistModels(): string[] {
   if (!value) {
     throw new Error("Set EVAL_SHORTLIST_MODELS=model-a,model-b,model-c before running the shortlist profile.");
   }
-  return value.split(",").map((model) => model.trim()).filter(Boolean);
+  return requireUniqueModels(value.split(",").map((model) => model.trim()).filter(Boolean), "EVAL_SHORTLIST_MODELS");
 }
 
 function profileModels(profile: string): string[] {
   if (profile === "shortlist") return parseShortlistModels();
-  if (profile === "screening") return [...PROFILES.screening];
+  if (profile === "screening") return requireUniqueModels([...PROFILES.screening], "screening profile");
   throw new Error("Usage: tsx src/cli.ts <screening|shortlist> [--dry-run]");
 }
 
@@ -62,6 +63,7 @@ async function main(): Promise<void> {
   const allItems = await loadItems();
   const approvedItems = selectedApprovedItems(allItems);
   const allCases = await loadCases();
+  validateContentRelations(allItems, allCases);
   const selected = allCases
     .filter((testCase) => approvedItems.some((item) => item.id === testCase.problem_id && item.language === testCase.language));
 
@@ -80,14 +82,14 @@ async function main(): Promise<void> {
   }
   const estimate = [...pricing.entries()].reduce((total, [model, modelPricing]) => {
     const modelCalls = selected.length * repeats;
-    return total + estimateCostUsd(modelPricing, modelCalls);
+    return total + estimateCostUsd(modelPricing, modelCalls, 2_000, MAX_OUTPUT_TOKENS);
   }, 0);
   const limit = Number(process.env.EVAL_MAX_BATCH_COST_USD ?? "3");
 
   console.table(models.map((model) => ({
     model,
     available_in_catalogue: pricing.has(model),
-    estimated_cost_usd: estimateCostUsd(pricing.get(model)!, selected.length * repeats).toFixed(4)
+    estimated_cost_usd: estimateCostUsd(pricing.get(model)!, selected.length * repeats, 2_000, MAX_OUTPUT_TOKENS).toFixed(4)
   })));
   console.log(`Profile=${profile}; repeats=${repeats}; calls=${calls}; total estimated maximum=$${estimate.toFixed(4)}; cap=$${limit.toFixed(2)}`);
 
@@ -144,11 +146,13 @@ async function main(): Promise<void> {
             input_tokens: response.usage.prompt_tokens,
             output_tokens: response.usage.completion_tokens,
             cost_usd: response.usage.cost,
+            request_attempts: response.attemptCount,
             assertions
           };
           results.push(result);
           await writeRawResult(result);
         } catch (error) {
+          const infrastructureError = error instanceof OpenRouterRequestError;
           const result: ModelRunResult = {
             run_id: crypto.randomUUID(),
             timestamp,
@@ -159,8 +163,10 @@ async function main(): Promise<void> {
             decision: null,
             raw_content: "",
             latency_ms: Math.round(performance.now() - startedAt),
+            request_attempts: infrastructureError ? error.attemptCount : 1,
             assertions: [],
-            error: error instanceof Error ? error.message : String(error)
+            error: error instanceof Error ? error.message : String(error),
+            infrastructure_error: infrastructureError
           };
           results.push(result);
           await writeRawResult(result);
@@ -172,9 +178,10 @@ async function main(): Promise<void> {
   const reportTimestamp = new Date().toISOString().replace(/[:.]/gu, "-");
   const report = await writeSummary(results, `${reportTimestamp}-${profile}`);
   const scorecard = await writeModelScorecard(results, `${reportTimestamp}-${profile}`);
-  const failures = results.filter((result) => result.error || result.assertions.some((assertion) => assertion.severity === "gate" && !assertion.passed));
+  const failures = results.filter((result) => !result.infrastructure_error && result.assertions.some((assertion) => assertion.severity === "gate" && !assertion.passed));
+  const infrastructureErrors = results.filter((result) => result.infrastructure_error);
   const actualCost = results.reduce((total, result) => total + (result.cost_usd ?? 0), 0);
-  console.log(`Completed ${results.length} calls. Critical failures=${failures.length}. Actual reported cost=$${actualCost.toFixed(4)}.`);
+  console.log(`Completed ${results.length} calls. Critical failures=${failures.length}; infrastructure errors=${infrastructureErrors.length}. Actual reported cost=$${actualCost.toFixed(4)}.`);
   console.log(`Summary: ${report}`);
   console.log(`Model scorecard: ${scorecard}`);
 }

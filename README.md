@@ -33,8 +33,10 @@ This harness evaluates the AI decision layer only. It does not replace UI tests,
 
 1. Keep all API keys in local environment variables or an ignored `.env` file.
 2. Never treat a draft item or AI translation as teacher validation.
-3. Preserve raw model responses locally in `results/raw/`; they are intentionally ignored by Git.
-4. Before a paid batch, inspect the estimated maximum cost and use the configured safety cap.
+3. Validate every task and scenario YAML file before any API call; unknown fields, misspelled actions and invalid references stop the run.
+4. Preserve raw model responses locally in `results/raw/`; they are intentionally ignored by Git.
+5. Before a paid batch, inspect the estimated maximum cost and use the configured safety cap. The estimate uses 2,000 input tokens and the same 1,200-token output limit sent to each model.
+6. Retry only temporary API failures. A request that still fails is reported as an infrastructure error, not as evidence that the model failed the tutoring task.
 
 ## Why this pilot uses a custom runner
 

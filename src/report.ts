@@ -19,13 +19,15 @@ export async function writeSummary(results: ModelRunResult[], label: string): Pr
   await mkdir(outputDirectory, { recursive: true });
   const file = path.join(outputDirectory, `${label}-summary.csv`);
   const rows = [
-    ["model", "prompt_version", "case_id", "repeat_index", "critical_failure", "assessment_match", "mistake_id_match", "answer_leakage", "latency_ms", "input_tokens", "output_tokens", "cost_usd", "provider", "generation_id", "error"],
+    ["model", "prompt_version", "case_id", "repeat_index", "critical_failure", "infrastructure_error", "request_attempts", "assessment_match", "mistake_id_match", "answer_leakage", "latency_ms", "input_tokens", "output_tokens", "cost_usd", "provider", "generation_id", "error"],
     ...results.map((result) => [
       result.model,
       result.prompt_version,
       result.case_id,
       result.repeat_index,
       result.assertions.some((assertion) => assertion.severity === "gate" && !assertion.passed),
+      result.infrastructure_error,
+      result.request_attempts,
       result.assertions.find((assertion) => assertion.id === "A0-assessment")?.passed,
       result.assertions.find((assertion) => assertion.id === "A4-mistake-id")?.passed,
       result.assertions.find((assertion) => assertion.id === "A6-answer-leakage")?.passed,
@@ -58,35 +60,74 @@ function rateLabel(values: boolean[]): string {
   return `${passed}/${values.length} (${((passed / values.length) * 100).toFixed(1)}%)`;
 }
 
+export interface ModelScorecardRow {
+  model: string;
+  promptVersions: string;
+  runs: number;
+  completedRuns: number;
+  infrastructureErrors: number;
+  gatePassRate: string;
+  assessmentAccuracy: string;
+  mistakeIdAccuracy: string;
+  answerLeakageFailures: number;
+  p50LatencyMs: number | undefined;
+  p95LatencyMs: number | undefined;
+  totalCostUsd: string;
+  providers: string;
+}
+
+export function buildModelScorecardRows(results: ModelRunResult[]): ModelScorecardRow[] {
+  const models = [...new Set(results.map((result) => result.model))];
+  return models.map((model) => {
+    const modelResults = results.filter((result) => result.model === model);
+    const completedResults = modelResults.filter((result) => !result.infrastructure_error);
+    const gatePasses = completedResults.map((result) => !result.assertions.some((assertion) => assertion.severity === "gate" && !assertion.passed));
+    const assessmentMatches = completedResults.map((result) => assertionPassed(result, "A0-assessment")).filter((value): value is boolean => value !== undefined);
+    const mistakeMatches = completedResults.map((result) => assertionPassed(result, "A4-mistake-id")).filter((value): value is boolean => value !== undefined);
+    const leakageFailures = completedResults.filter((result) => assertionPassed(result, "A6-answer-leakage") === false).length;
+    const latencies = completedResults.map((result) => result.latency_ms).filter((value) => Number.isFinite(value));
+    const providers = [...new Set(modelResults.map((result) => result.provider_name).filter(Boolean))].join(" | ");
+    const promptVersions = [...new Set(modelResults.map((result) => result.prompt_version))].join(" | ");
+    const totalCost = modelResults.reduce((sum, result) => sum + (result.cost_usd ?? 0), 0);
+    return {
+      model,
+      promptVersions,
+      runs: modelResults.length,
+      completedRuns: completedResults.length,
+      infrastructureErrors: modelResults.filter((result) => result.infrastructure_error).length,
+      gatePassRate: rateLabel(gatePasses),
+      assessmentAccuracy: rateLabel(assessmentMatches),
+      mistakeIdAccuracy: rateLabel(mistakeMatches),
+      answerLeakageFailures: leakageFailures,
+      p50LatencyMs: percentile(latencies, 50),
+      p95LatencyMs: percentile(latencies, 95),
+      totalCostUsd: totalCost.toFixed(6),
+      providers
+    };
+  });
+}
+
 export async function writeModelScorecard(results: ModelRunResult[], label: string): Promise<string> {
   const outputDirectory = path.join(process.cwd(), "results");
   await mkdir(outputDirectory, { recursive: true });
   const file = path.join(outputDirectory, `${label}-model-scorecard.csv`);
-  const models = [...new Set(results.map((result) => result.model))];
   const rows = [
-    ["model", "prompt_versions", "runs", "gate_pass_rate", "assessment_accuracy", "mistake_id_accuracy", "answer_leakage_failures", "p50_latency_ms", "p95_latency_ms", "total_cost_usd", "providers"],
-    ...models.map((model) => {
-      const modelResults = results.filter((result) => result.model === model);
-      const gatePasses = modelResults.map((result) => !result.error && !result.assertions.some((assertion) => assertion.severity === "gate" && !assertion.passed));
-      const assessmentMatches = modelResults.map((result) => assertionPassed(result, "A0-assessment")).filter((value): value is boolean => value !== undefined);
-      const mistakeMatches = modelResults.map((result) => assertionPassed(result, "A4-mistake-id")).filter((value): value is boolean => value !== undefined);
-      const leakageFailures = modelResults.filter((result) => assertionPassed(result, "A6-answer-leakage") === false).length;
-      const latencies = modelResults.map((result) => result.latency_ms).filter((value) => Number.isFinite(value));
-      const providers = [...new Set(modelResults.map((result) => result.provider_name).filter(Boolean))].join(" | ");
-      const promptVersions = [...new Set(modelResults.map((result) => result.prompt_version))].join(" | ");
-      const totalCost = modelResults.reduce((sum, result) => sum + (result.cost_usd ?? 0), 0);
+    ["model", "prompt_versions", "runs", "completed_runs", "infrastructure_errors", "gate_pass_rate", "assessment_accuracy", "mistake_id_accuracy", "answer_leakage_failures", "p50_latency_ms", "p95_latency_ms", "total_cost_usd", "providers"],
+    ...buildModelScorecardRows(results).map((row) => {
       return [
-        model,
-        promptVersions,
-        modelResults.length,
-        rateLabel(gatePasses),
-        rateLabel(assessmentMatches),
-        rateLabel(mistakeMatches),
-        leakageFailures,
-        percentile(latencies, 50),
-        percentile(latencies, 95),
-        totalCost.toFixed(6),
-        providers
+        row.model,
+        row.promptVersions,
+        row.runs,
+        row.completedRuns,
+        row.infrastructureErrors,
+        row.gatePassRate,
+        row.assessmentAccuracy,
+        row.mistakeIdAccuracy,
+        row.answerLeakageFailures,
+        row.p50LatencyMs,
+        row.p95LatencyMs,
+        row.totalCostUsd,
+        row.providers
       ];
     })
   ];
