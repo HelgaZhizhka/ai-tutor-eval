@@ -8,6 +8,8 @@ Different AI models can behave very differently under the same instruction. This
 
 This repository is **not the student-facing tutor**. It is the evaluation harness used to test candidate models safely and consistently.
 
+For the tutor's role in the product, see [AI Tutor MVP](docs/AI_TUTOR_MVP.md). For the requirements for each task, see [Content Contract](docs/CONTENT_CONTRACT.md).
+
 ## The question we are answering
 
 > Which candidate model best follows our tutoring rules when it receives the same teacher-approved mathematics scenarios?
@@ -37,11 +39,12 @@ For each scenario, the model must return a small structured decision rather than
 The initial English evaluation will test whether a model:
 
 - returns valid structured JSON;
-- identifies a correct answer, a known misconception, “I do not know”, and a request for the final answer;
+- identifies a correct answer, a known misconception, “I do not know”, a request for the final answer and an attempt to bypass tutor rules;
 - follows the approved next action and hint-level limits;
 - avoids revealing a final answer when it is not allowed;
 - responds in the requested language;
 - keeps the message short and suitable for a Grade 5 learner;
+- does not reject a coherent alternative solution method merely because it differs from the canonical solution;
 - performs consistently enough to be considered for the MVP.
 
 We also record latency, token use, actual API cost, model and upstream provider.
@@ -64,8 +67,8 @@ The evaluation harness and its automated checks are ready for the first approved
 
 ## Next steps
 
-1. Content Lead selects and approves five Grade 5 items for the initial evaluation.
-2. We prepare 20 scenarios: four situations for each approved item.
+1. Content Lead selects and approves five Grade 5 items.
+2. We prepare approximately 20–30 realistic scenarios across those items, including common mistakes, “I do not know”, a request for the answer, a rule-bypass attempt and an alternative valid approach.
 3. We run the same scenarios against the candidate models.
 4. We shortlist the strongest models using automatic checks, cost and latency.
 5. A teacher reviews a small blind sample from the finalists.
@@ -77,13 +80,15 @@ The evaluation harness and its automated checks are ready for the first approved
 - The model must return a strict JSON object.
 - The prompt limits the tutor to one next step and forbids premature answer disclosure.
 - The model cannot decide mastery, topic completion or the next exercise.
+- A rule-bypass misclassification is a critical failure.
+- OpenRouter automatic provider fallback is disabled; an untested model will not silently answer in its place.
 - Every paid run requires an explicit confirmation and an estimated-cost check.
-- Raw responses stay local; summary reports are saved in Git.
+- Reports record the model, provider, prompt version, latency, tokens and actual cost. Raw responses stay local.
 
 ## Decision needed from the team
 
-The immediate dependency is content, not more engineering:
+The immediate dependency is teacher-approved content, not more engineering:
 
-> The Content Lead should provide five tasks marked **Approved for initial AI model evaluation**, including the answer, solution steps, hint ladder and realistic misconceptions.
+> The Content Lead should provide five Grade 5 tasks with `review_status: approved`, including the answer, solution steps, hint ladder, realistic misconceptions and the appropriate next tutor action.
 
-Once those five tasks are ready, the harness is ready for the full initial model comparison.
+The full content checklist is in the [Content Contract](docs/CONTENT_CONTRACT.md). Once those five tasks and their scenarios are ready, the harness is ready for the initial model comparison.
