@@ -25,6 +25,12 @@ The tutor is only as safe and useful as its task content. A task cannot be consi
 Use [the item template](../content/items/ITEM.template.yaml) as the starting point for a new task. The evaluation runner validates this structure before it sends any API request.
 Use [the scenario template](../cases/base-cases.template.yaml) for the matching student scenarios.
 
+## Active evaluation scenarios
+
+`cases/base-cases.yaml` is the active set for a paid comparison. Every scenario in it must have `review_status: approved`, a named reviewer and review date, and must point to an item with both `review_status: approved` and `license_status: clear`. The runner stops before any API call if one active case does not meet these requirements.
+
+Draft scenarios may be prepared elsewhere, but should not be placed in the active file until their task and expected tutor reaction are approved.
+
 ## Alternative approaches
 
 The Content Lead does not need to enumerate every mathematically valid solution. However, when a task has an important or likely alternative strategy, it should be recorded in the optional `accepted_approaches` list:
@@ -51,4 +57,4 @@ For each selected Grade 5 task, the Content Lead confirms:
 
 ## Translation rule
 
-English is the source language for the first model comparison. Russian and Uzbek versions are separate reviewed content, not automatic translations performed by the model under evaluation. Uzbek MVP content uses Latin script.
+The current templates are in English because the first received materials were in English; the first evaluation language is still a team decision. Russian and Uzbek versions are separate reviewed content, not automatic translations performed by the model under evaluation. Uzbek MVP content uses Latin script.

@@ -67,18 +67,22 @@ We do not require every model to use the exact same wording. We check whether it
 
 ## What we test
 
-The initial English evaluation will test whether a model:
+The first evaluation, in the language the team confirms, will test whether a model:
 
 - returns valid structured JSON;
 - identifies a correct answer, a known misconception, “I do not know”, a request for the final answer and an attempt to bypass tutor rules;
 - follows the approved next action and hint-level limits;
 - avoids revealing a final answer when it is not allowed;
-- responds in the requested language;
+- declares the requested response language and, for Uzbek, does not use Cyrillic;
 - keeps the message short and suitable for a Grade 5 learner;
 - does not reject a coherent alternative solution method merely because it differs from the canonical solution;
 - performs consistently enough to be considered for the MVP.
 
-We also record latency, token use, actual API cost, model and upstream provider.
+The automated check does not yet independently detect the language of the student-facing text. For Russian and Uzbek, Content Lead review remains necessary to confirm the actual language and pedagogical quality.
+
+Answer-leakage checks look for teacher-configured answer forms. They are an important guardrail, but not proof that an answer was not revealed indirectly; blind Content Lead review remains necessary.
+
+We also record latency, token use, reported API cost, model and upstream provider.
 
 ## What this project does not test yet
 
@@ -99,7 +103,7 @@ The evaluation harness and its automated checks are ready for the first approved
 ## Next steps
 
 1. Content Lead selects and approves the Grade 5 items that are ready.
-2. We prepare several teacher-reviewed student scenarios for each approved task.
+2. We prepare several teacher-reviewed student scenarios for each approved task. Each active scenario records its approval status, reviewer and review date.
 3. We run every candidate model once against the same approved scenario set. This is the initial screening.
 4. We shortlist the strongest two or three models using automatic checks, cost and latency.
 5. We run each finalist against the same scenario set twice to check consistency.
@@ -129,7 +133,7 @@ When the team makes its first model-selection decision, freeze the actual approv
 - The model cannot decide mastery, topic completion or the next exercise.
 - A rule-bypass misclassification is a critical failure.
 - OpenRouter automatic provider fallback is disabled; an untested model will not silently answer in its place.
-- Every task and scenario YAML file is validated before any API call. A typo or invalid reference stops the run instead of being counted as a model failure.
+- Every task and scenario YAML file is validated before any API call. A typo, invalid reference, draft scenario or scenario linked to an unapproved/unlicensed item stops the run instead of being counted as a model failure.
 - Temporary API failures are retried up to three times. An unresolved provider error is reported separately and does not lower a model's behavioural gate pass rate.
 - A shortlist with the same model ID twice is rejected before cost estimation.
 - Every paid run requires an explicit confirmation and an estimated-cost check.

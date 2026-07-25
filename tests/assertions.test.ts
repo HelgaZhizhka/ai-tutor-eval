@@ -28,6 +28,9 @@ const testCase: EvalCase = {
   case_id: "G5-EN-TEST-S2-EN",
   problem_id: item.id,
   language: "en",
+  review_status: "approved",
+  reviewed_by: "Content Lead",
+  reviewed_at: "2026-07-25",
   situation: "common_mistake",
   student_attempt: "13 minibuses",
   conversation_history: [],
@@ -63,6 +66,14 @@ describe("evaluation assertions", () => {
     const validation = validateDecision(leaked);
     const assertions = runAssertions(leaked, item, testCase, validation.valid, []);
     expect(assertions.find((assertion) => assertion.id === "A6-answer-leakage")?.passed).toBe(false);
+  });
+
+  it("treats parseable but schema-invalid JSON as a gate failure without throwing", () => {
+    const validation = validateDecision({});
+    expect(() => runAssertions({} as TutorDecision, item, testCase, validation.valid, validation.errors.map((error) => error.message ?? "")))
+      .not.toThrow();
+    expect(runAssertions({} as TutorDecision, item, testCase, validation.valid, validation.errors.map((error) => error.message ?? "")))
+      .toMatchObject([{ id: "A1-schema", passed: false, severity: "gate" }]);
   });
 
   it("records a mismatched assessment as a scoring failure", () => {

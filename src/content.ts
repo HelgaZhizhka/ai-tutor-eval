@@ -79,6 +79,33 @@ export function validateContentRelations(items: MathItem[], cases: EvalCase[]): 
   }
 }
 
+/**
+ * `cases/base-cases.yaml` is the active set used for paid model comparisons.
+ * It may only contain reviewed scenarios for approved, licence-clear items.
+ */
+export function validateActiveEvaluationSet(items: MathItem[], cases: EvalCase[]): void {
+  const itemsById = new Map(items.map((item) => [item.id, item]));
+  const errors: string[] = [];
+
+  for (const testCase of cases) {
+    const item = itemsById.get(testCase.problem_id);
+    if (!item) continue; // The relation validator reports this more specifically.
+    if (testCase.review_status !== "approved") {
+      errors.push(`${testCase.case_id}: active evaluation cases must have review_status: approved`);
+    }
+    if (item.review_status !== "approved" || item.license_status !== "clear") {
+      errors.push(
+        `${testCase.case_id}: ${item.id} is not eligible for the active evaluation set ` +
+        `(review_status=${item.review_status}, license_status=${item.license_status})`
+      );
+    }
+  }
+
+  if (errors.length > 0) {
+    throw new Error(`Active evaluation set is incomplete: ${errors.join("; ")}`);
+  }
+}
+
 export function selectedApprovedItems(items: MathItem[]): MathItem[] {
   return items.filter((item) => item.review_status === "approved" && item.license_status === "clear");
 }

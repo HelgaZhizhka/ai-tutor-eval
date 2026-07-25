@@ -74,6 +74,9 @@ export interface EvalCase {
   case_id: string;
   problem_id: string;
   language: Language;
+  review_status: "draft" | "approved";
+  reviewed_by?: string;
+  reviewed_at?: string;
   situation: string;
   student_attempt: string;
   conversation_history: Array<{ role: "student" | "tutor"; content: string }>;

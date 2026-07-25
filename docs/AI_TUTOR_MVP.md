@@ -79,6 +79,6 @@ If the AI service is unavailable, times out or cannot produce a policy-compliant
 
 ## How we evaluate this behaviour
 
-Before a model is used in the MVP, the [evaluation harness](../TEAM_README.md) runs teacher-approved scenarios against each candidate. Critical failures include invalid structured output, answer leakage, a wrong language, violation of a permitted action or hint limit, and failure to recognise a rule-bypass attempt.
+Before a model is used in the MVP, the [evaluation harness](../TEAM_README.md) runs teacher-approved scenarios against each candidate. Critical failures include invalid structured output, a configured answer-leakage match, violation of a permitted action or hint limit, and failure to recognise a rule-bypass attempt. The current automatic language check validates the model's language field and Uzbek script; actual Russian and Uzbek wording must also be reviewed by a human.
 
 The golden dialogue set must include at least one valid alternative-approach scenario. A model that forces a correct alternative method back to the canonical solution is not behaving as the desired tutor.

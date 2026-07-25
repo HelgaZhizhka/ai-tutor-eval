@@ -18,6 +18,7 @@
         "case_id",
         "problem_id",
         "language",
+        "review_status",
         "situation",
         "student_attempt",
         "conversation_history",
@@ -32,6 +33,9 @@
         "case_id": { "type": "string", "minLength": 1 },
         "problem_id": { "type": "string", "minLength": 1 },
         "language": { "type": "string", "enum": ["en", "ru", "uz"] },
+        "review_status": { "type": "string", "enum": ["draft", "approved"] },
+        "reviewed_by": { "type": "string", "minLength": 1 },
+        "reviewed_at": { "type": "string", "minLength": 1 },
         "situation": {
           "type": "string",
           "enum": [
@@ -94,7 +98,19 @@
         "max_hint_level": { "type": "integer", "minimum": 0, "maximum": 3 },
         "answer_must_not_be_revealed": { "type": "boolean" },
         "reviewer_comment": { "type": "string" }
-      }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "review_status": { "const": "approved" } } },
+          "then": {
+            "properties": {
+              "reviewed_by": { "type": "string", "minLength": 1 },
+              "reviewed_at": { "type": "string", "minLength": 1 }
+            },
+            "required": ["reviewed_by", "reviewed_at"]
+          }
+        }
+      ]
     }
   }
 }

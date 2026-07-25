@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { runAssertions } from "./assertions.js";
 import { buildTutorContext, loadTutorPrompt, TUTOR_PROMPT_VERSION } from "./build-request.js";
-import { loadCases, loadItems, selectedApprovedItems, validateContentRelations } from "./content.js";
+import { loadCases, loadItems, selectedApprovedItems, validateActiveEvaluationSet, validateContentRelations } from "./content.js";
 import { estimateCostUsd, fetchModelPricing } from "./model-catalog.js";
 import { callOpenRouter, MAX_OUTPUT_TOKENS, OpenRouterRequestError } from "./openrouter.js";
 import { requireUniqueModels } from "./model-list.js";
@@ -64,12 +64,19 @@ async function main(): Promise<void> {
   const approvedItems = selectedApprovedItems(allItems);
   const allCases = await loadCases();
   validateContentRelations(allItems, allCases);
+  validateActiveEvaluationSet(allItems, allCases);
   const selected = allCases
     .filter((testCase) => approvedItems.some((item) => item.id === testCase.problem_id && item.language === testCase.language));
 
   if (approvedItems.length === 0 || selected.length === 0) {
-    throw new Error("No approved evaluation set is available yet. Add at least one teacher-approved item under content/items/ and its matching case in cases/base-cases.yaml.");
+    throw new Error("No approved evaluation set is available yet. Add at least one teacher-approved item under content/items/ and its matching teacher-reviewed case in cases/base-cases.yaml.");
   }
+
+  if (selected.length !== allCases.length) {
+    throw new Error(`Active evaluation set is incomplete: ${selected.length} of ${allCases.length} scenarios were selected.`);
+  }
+
+  console.log(`Evaluation set: approved_tasks=${approvedItems.length}; active_scenarios=${allCases.length}; selected_scenarios=${selected.length}`);
 
   const calls = models.length * selected.length * repeats;
   const pricing = await fetchModelPricing(models);
@@ -91,10 +98,10 @@ async function main(): Promise<void> {
     available_in_catalogue: pricing.has(model),
     estimated_cost_usd: estimateCostUsd(pricing.get(model)!, selected.length * repeats, 2_000, MAX_OUTPUT_TOKENS).toFixed(4)
   })));
-  console.log(`Profile=${profile}; repeats=${repeats}; calls=${calls}; total estimated maximum=$${estimate.toFixed(4)}; cap=$${limit.toFixed(2)}`);
+  console.log(`Profile=${profile}; repeats=${repeats}; calls=${calls}; estimated cost=$${estimate.toFixed(4)} using 2,000 input and ${MAX_OUTPUT_TOKENS} output tokens per call; local estimate guard=$${limit.toFixed(2)}`);
 
   if (estimate > limit) {
-    throw new Error("Estimated batch cost exceeds EVAL_MAX_BATCH_COST_USD. Increase the cap deliberately or reduce the batch.");
+    throw new Error("Estimated batch cost exceeds EVAL_MAX_BATCH_COST_USD. Increase the guard deliberately or reduce the batch.");
   }
   if (dryRun) return;
   if (process.env.EVAL_CONFIRM !== "YES") {

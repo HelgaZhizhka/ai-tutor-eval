@@ -7,8 +7,8 @@ interface ModelCatalogResponse {
   data: Array<{ id: string; pricing?: { prompt?: string; completion?: string } }>;
 }
 
-export async function fetchModelPricing(models: string[]): Promise<Map<string, ModelPricing>> {
-  const response = await fetch("https://openrouter.ai/api/v1/models");
+export async function fetchModelPricing(models: string[], fetchImpl: typeof fetch = fetch): Promise<Map<string, ModelPricing>> {
+  const response = await fetchImpl("https://openrouter.ai/api/v1/models");
   if (!response.ok) {
     throw new Error(`Could not fetch OpenRouter model catalogue (${response.status}).`);
   }
@@ -17,9 +17,13 @@ export async function fetchModelPricing(models: string[]): Promise<Map<string, M
   const selected = new Map<string, ModelPricing>();
   for (const entry of payload.data) {
     if (!models.includes(entry.id)) continue;
+    if (entry.pricing?.prompt === undefined || entry.pricing.completion === undefined) continue;
+    const prompt = Number(entry.pricing.prompt);
+    const completion = Number(entry.pricing.completion);
+    if (!Number.isFinite(prompt) || !Number.isFinite(completion)) continue;
     selected.set(entry.id, {
-      prompt: Number(entry.pricing?.prompt ?? 0),
-      completion: Number(entry.pricing?.completion ?? 0)
+      prompt,
+      completion
     });
   }
   return selected;

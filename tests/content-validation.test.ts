@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { validateContentRelations } from "../src/content.js";
+import { validateActiveEvaluationSet, validateContentRelations } from "../src/content.js";
 import { assertValidCaseDocument, assertValidMathItem, ContentValidationError } from "../src/schema.js";
 import type { EvalCase, MathItem } from "../src/types.js";
 
@@ -27,6 +27,9 @@ const testCase: EvalCase = {
   case_id: "G5-EN-TEST-S1",
   problem_id: item.id,
   language: "en",
+  review_status: "approved",
+  reviewed_by: "Content Lead",
+  reviewed_at: "2026-07-25",
   situation: "common_mistake",
   student_attempt: "10",
   conversation_history: [],
@@ -42,6 +45,13 @@ describe("content validation", () => {
   it("rejects an unknown action instead of blaming every model", () => {
     const invalidDocument = {
       cases: [{ ...testCase, allowed_actions: ["ask_guiding_questoin"] }]
+    };
+    expect(() => assertValidCaseDocument(invalidDocument, "cases/base-cases.yaml")).toThrow(ContentValidationError);
+  });
+
+  it("requires reviewer evidence when a scenario is marked approved", () => {
+    const invalidDocument = {
+      cases: [{ ...testCase, reviewed_by: undefined, reviewed_at: undefined }]
     };
     expect(() => assertValidCaseDocument(invalidDocument, "cases/base-cases.yaml")).toThrow(ContentValidationError);
   });
@@ -77,5 +87,12 @@ describe("content validation", () => {
     expect(() => assertValidMathItem(itemWithMetadata, "content/items/en/test.yaml")).not.toThrow();
     expect(() => assertValidCaseDocument({ cases: [testCase] }, "cases/base-cases.yaml")).not.toThrow();
     expect(() => validateContentRelations([item], [testCase])).not.toThrow();
+  });
+
+  it("rejects a draft task or scenario from the active evaluation set", () => {
+    expect(() => validateActiveEvaluationSet([item], [{ ...testCase, review_status: "draft", reviewed_by: undefined, reviewed_at: undefined }]))
+      .toThrow("active evaluation cases must have review_status: approved");
+    expect(() => validateActiveEvaluationSet([{ ...item, review_status: "draft" }], [testCase]))
+      .toThrow("is not eligible for the active evaluation set");
   });
 });

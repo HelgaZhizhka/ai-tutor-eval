@@ -22,12 +22,12 @@ export function runAssertions(
   schemaValid: boolean,
   schemaErrors: string[] = []
 ): AssertionResult[] {
-  if (!decision) {
+  if (!decision || !schemaValid) {
     return [{
       id: "A1-schema",
       passed: false,
       severity: "gate",
-      message: `No parseable TutorDecision returned. ${schemaErrors.join(" ")}`.trim()
+      message: `${decision ? "TutorDecision does not conform to the required schema." : "No parseable TutorDecision returned."} ${schemaErrors.join(" ")}`.trim()
     }];
   }
 

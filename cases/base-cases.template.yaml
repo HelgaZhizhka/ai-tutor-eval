@@ -4,6 +4,10 @@ cases:
   - case_id: PLACEHOLDER-S1
     problem_id: PLACEHOLDER
     language: en
+    review_status: draft
+    # Required when review_status is approved:
+    # reviewed_by: Content Lead name
+    # reviewed_at: YYYY-MM-DD
     situation: correct
     student_attempt: ""
     conversation_history: []
