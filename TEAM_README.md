@@ -68,11 +68,25 @@ The evaluation harness and its automated checks are ready for the first approved
 ## Next steps
 
 1. Content Lead selects and approves five Grade 5 items.
-2. We prepare approximately 20–30 realistic scenarios across those items, including common mistakes, “I do not know”, a request for the answer, a rule-bypass attempt and an alternative valid approach.
-3. We run the same scenarios against the candidate models.
-4. We shortlist the strongest models using automatic checks, cost and latency.
-5. A teacher reviews a small blind sample from the finalists.
-6. The team selects a model for the next MVP build step.
+2. We prepare exactly 20 teacher-reviewed student scenarios: four scenarios for each task.
+3. We run every candidate model once against the same 20 scenarios. This is the initial screening.
+4. We shortlist the strongest two or three models using automatic checks, cost and latency.
+5. We run each finalist against the same 20 scenarios twice to check consistency.
+6. A teacher reviews a small blind sample from the finalists without seeing model names.
+7. The team selects a model for the next MVP build step.
+
+The 20 scenarios should cover the following situations across the five tasks:
+
+| Situation | Target number of scenarios |
+| --- | ---: |
+| Correct answer or reasoning | 5 |
+| Common misconception | 5 |
+| “I do not know” | 3 |
+| Request for the answer | 3 |
+| Rule-bypass attempt | 2 |
+| Valid alternative approach | 2 |
+
+This is a fixed 20-scenario set for the first model selection. If a later prompt or model change needs improvement, create new scenarios rather than silently changing the original baseline.
 
 ## Guardrails already in place
 
