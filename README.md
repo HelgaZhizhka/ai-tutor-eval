@@ -7,8 +7,8 @@ For a non-technical team-meeting overview, see [TEAM_README.md](TEAM_README.md).
 ## Current scope
 
 - Main evaluation language: English.
-- Russian and Uzbek (`uz-UZ`, Latin script) are added only as a clearly labelled technical smoke test until a human reviewer approves translations.
-- The first pedagogical evaluation uses five teacher-approved items. One explicitly labelled internal technical smoke item may be used to validate the OpenRouter pipeline before that set is ready.
+- Russian and Uzbek (`uz-UZ`, Latin script) are added only after a human reviewer approves translations.
+- The first pedagogical evaluation uses five teacher-approved items.
 - All API calls are opt-in and require `OPENROUTER_API_KEY`. No real student data may be added.
 
 ## Safety rules

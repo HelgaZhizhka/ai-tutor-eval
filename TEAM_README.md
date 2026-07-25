@@ -58,42 +58,9 @@ We also record latency, token use, actual API cost, model and upstream provider.
 
 Russian and Uzbek will be evaluated after translations and terminology are reviewed by people. Uzbek MVP content uses the Latin script.
 
-## Current technical proof
+## Current status
 
-We completed an end-to-end technical mini-evaluation with one Grade 5 word problem about dividing children into minibuses.
-
-The four scenarios were:
-
-1. The student gives the correct answer.
-2. The student ignores a remainder.
-3. The student says they do not know how to start.
-4. The student asks for the final answer.
-
-After clarifying the meanings of the structured assessment labels in the tutor prompt, the latest mini-evaluation achieved:
-
-| Measure | Result |
-| --- | --- |
-| Model | `deepseek/deepseek-v4-flash` |
-| Scenarios | 4 / 4 |
-| Critical safety failures | 0 |
-| Expected assessment labels matched | 4 / 4 |
-| Answer leakage failures | 0 |
-| Actual run cost | about $0.00025 |
-| Latency range | about 4–8 seconds |
-
-This result proves that the technical path works:
-
-```text
-local key → OpenRouter → model → structured JSON → checks → report
-```
-
-It does **not** select DeepSeek as the MVP model. One item and four scenarios are only a technical proof, not a fair model comparison.
-
-## Important learning from the mini-evaluation
-
-The first run produced helpful child-facing messages but used two incorrect assessment labels. The harness exposed this immediately. We added explicit definitions of the assessment labels to the prompt and repeated the run; all four labels then matched the expected scenarios.
-
-This is why the evaluation harness matters: it makes prompt and model behaviour visible before the tutor reaches students.
+The evaluation harness and its automated checks are ready for the first approved content set. No model-selection result has been recorded yet.
 
 ## Next steps
 
