@@ -33,7 +33,3 @@ npm run eval:screening -- --dry-run
 ```
 
 The last command previews the initial comparison and will refuse to run until five teacher-approved items and their matching scenarios are present.
-
-## Sources
-
-- [Original content bank](content/original/grade5_math_item_bank.v0.1.md)

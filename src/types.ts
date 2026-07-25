@@ -40,6 +40,11 @@ export interface CommonMistake {
   approved_response_guidance: string;
 }
 
+export interface AcceptedApproach {
+  label: string;
+  recognition_guidance: string;
+}
+
 export interface MathItem {
   id: string;
   language: Language;
@@ -53,6 +58,7 @@ export interface MathItem {
   solution_steps: string[];
   hint_ladder: string[];
   common_mistakes: CommonMistake[];
+  accepted_approaches?: AcceptedApproach[];
   leakage_terms: string[];
   source_type: "original" | "adapted";
   license_status: "clear" | "unresolved";

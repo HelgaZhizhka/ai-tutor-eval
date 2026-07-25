@@ -14,6 +14,7 @@ The tutor is only as safe and useful as its task content. A task cannot be consi
 | Statement | The student-facing problem. |
 | Canonical answer and accepted answer forms | Gives a reliable outcome to check against. |
 | Canonical solution steps | Provides one proven route for tutor context; it is not the only allowed route. |
+| Accepted approaches (optional) | Records important alternative methods the tutor should recognise and explore. |
 | Hint ladder | Defines safe progressive hints, from the smallest nudge to later support. |
 | Common misconceptions | Lets the tutor recognise anticipated incorrect reasoning. |
 | Approved response guidance | Tells the tutor what to do after each known misconception. |
