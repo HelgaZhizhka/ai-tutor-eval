@@ -2,11 +2,10 @@ import { describe, expect, it } from "vitest";
 import { selectedApprovedItems } from "../src/content.js";
 import type { MathItem } from "../src/types.js";
 
-const item = (id: string, approval_scope: MathItem["approval_scope"]): MathItem => ({
+const item = (id: string, overrides: Partial<MathItem> = {}): MathItem => ({
   id,
   language: "en",
   review_status: "approved",
-  approval_scope,
   content_role: "foundation",
   statement: "Test statement",
   canonical_answer: "1",
@@ -16,18 +15,15 @@ const item = (id: string, approval_scope: MathItem["approval_scope"]): MathItem 
   common_mistakes: [],
   leakage_terms: ["1"],
   source_type: "original",
-  license_status: "clear"
+  license_status: "clear",
+  ...overrides
 });
 
 describe("selectedApprovedItems", () => {
-  const technicalSmoke = item("TECH-1", "technical_smoke");
-  const pedagogical = item("EVAL-1", "initial_model_evaluation");
-
-  it("keeps technical smoke items out of screening", () => {
-    expect(selectedApprovedItems([technicalSmoke, pedagogical], "initial_model_evaluation").map((entry) => entry.id)).toEqual(["EVAL-1"]);
-  });
-
-  it("allows either approved scope for a smoke run", () => {
-    expect(selectedApprovedItems([technicalSmoke, pedagogical], "smoke").map((entry) => entry.id)).toEqual(["TECH-1", "EVAL-1"]);
+  it("keeps only approved items with a clear licence", () => {
+    const approved = item("APPROVED");
+    const draft = item("DRAFT", { review_status: "draft" });
+    const unresolved = item("UNRESOLVED", { license_status: "unresolved" });
+    expect(selectedApprovedItems([approved, draft, unresolved]).map((entry) => entry.id)).toEqual(["APPROVED"]);
   });
 });

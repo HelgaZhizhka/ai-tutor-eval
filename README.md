@@ -10,7 +10,6 @@ For the shared MVP product and architecture decisions, start with the [Olympiad 
 - Main evaluation language: English.
 - Russian and Uzbek (`uz-UZ`, Latin script) are added only after a human reviewer approves translations.
 - The first pedagogical evaluation uses five teacher-approved items.
-- Approved items for model selection must use `approval_scope: initial_model_evaluation`; `technical_smoke` items are excluded from screening and shortlist reports.
 - All API calls are opt-in and require `OPENROUTER_API_KEY`. No real student data may be added.
 
 ## Safety rules
@@ -30,10 +29,10 @@ We intentionally use a small TypeScript runner rather than Promptfoo for the pil
 npm install
 npm run typecheck
 npm test
-npm run eval:smoke
+npm run eval:screening -- --dry-run
 ```
 
-The last command will refuse to run until a valid key and selected teacher-approved items are present.
+The last command previews the initial comparison and will refuse to run until five teacher-approved items and their matching scenarios are present.
 
 ## Sources
 

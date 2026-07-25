@@ -23,7 +23,6 @@ export const NEXT_ACTIONS = [
 export type Assessment = (typeof ASSESSMENTS)[number];
 export type NextAction = (typeof NEXT_ACTIONS)[number];
 export type Language = "en" | "ru" | "uz";
-export type ApprovalScope = "technical_smoke" | "initial_model_evaluation";
 
 export interface TutorDecision {
   assessment: Assessment;
@@ -47,7 +46,6 @@ export interface MathItem {
   locale?: string;
   script?: "Latn" | "Cyrl";
   review_status: "draft" | "approved" | "rejected";
-  approval_scope: ApprovalScope;
   content_role: "diagnostic" | "foundation" | "olympiad";
   statement: string;
   canonical_answer: string;

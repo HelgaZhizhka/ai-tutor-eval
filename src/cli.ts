@@ -11,7 +11,6 @@ import { validateDecision } from "./schema.js";
 import type { EvalCase, ModelRunResult } from "./types.js";
 
 const PROFILES = {
-  smoke: ["deepseek/deepseek-v4-flash"],
   screening: [
     "openai/gpt-5.6-terra",
     "openai/gpt-5.6-luna",
@@ -38,13 +37,8 @@ function parseShortlistModels(): string[] {
 
 function profileModels(profile: string): string[] {
   if (profile === "shortlist") return parseShortlistModels();
-  if (profile === "smoke" || profile === "screening") return [...PROFILES[profile]];
-  throw new Error("Usage: tsx src/cli.ts <smoke|screening|shortlist> [--dry-run]");
-}
-
-function selectCases(cases: EvalCase[], profile: string): EvalCase[] {
-  if (profile === "smoke") return cases.slice(0, 5);
-  return cases;
+  if (profile === "screening") return [...PROFILES.screening];
+  throw new Error("Usage: tsx src/cli.ts <screening|shortlist> [--dry-run]");
 }
 
 function parseRepeats(profile: string): number {
@@ -61,24 +55,18 @@ function parseRepeats(profile: string): number {
 async function main(): Promise<void> {
   const profile = process.argv[2];
   const dryRun = process.argv.includes("--dry-run");
-  if (!profile) throw new Error("Usage: tsx src/cli.ts <smoke|screening|shortlist> [--dry-run]");
+  if (!profile) throw new Error("Usage: tsx src/cli.ts <screening|shortlist> [--dry-run]");
 
   const models = profileModels(profile);
   const repeats = parseRepeats(profile);
   const allItems = await loadItems();
-  const approvalScope = profile === "smoke" ? "smoke" : "initial_model_evaluation";
-  const approvedItems = selectedApprovedItems(allItems, approvalScope);
+  const approvedItems = selectedApprovedItems(allItems);
   const allCases = await loadCases();
-  const selected = selectCases(allCases, profile)
+  const selected = allCases
     .filter((testCase) => approvedItems.some((item) => item.id === testCase.problem_id && item.language === testCase.language));
 
-  const requiredItemCount = profile === "smoke" ? 1 : 5;
-  if (approvedItems.length < requiredItemCount || selected.length === 0) {
-    throw new Error(
-      profile === "smoke"
-        ? "No approved technical smoke item is available yet. Add one approved item under content/items/ and a matching case in cases/base-cases.yaml."
-        : "No approved evaluation set is available yet. Add five teacher-approved items under content/items/ and their matching cases in cases/base-cases.yaml."
-    );
+  if (approvedItems.length < 5 || selected.length === 0) {
+    throw new Error("No approved evaluation set is available yet. Add five teacher-approved items under content/items/ and their matching cases in cases/base-cases.yaml.");
   }
 
   const calls = models.length * selected.length * repeats;

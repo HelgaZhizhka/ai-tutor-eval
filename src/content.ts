@@ -1,7 +1,7 @@
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { parse } from "yaml";
-import type { ApprovalScope, EvalCase, MathItem } from "./types.js";
+import type { EvalCase, MathItem } from "./types.js";
 
 export async function loadYamlFile<T>(filePath: string): Promise<T> {
   return parse(await readFile(filePath, "utf8")) as T;
@@ -28,12 +28,6 @@ export async function loadCases(casesPath = path.join(process.cwd(), "cases", "b
   return document.cases;
 }
 
-export function selectedApprovedItems(items: MathItem[], scope: ApprovalScope | "smoke"): MathItem[] {
-  return items.filter((item) => {
-    const isApproved = item.review_status === "approved" && item.license_status === "clear";
-    const allowedForScope = scope === "smoke"
-      ? item.approval_scope === "technical_smoke" || item.approval_scope === "initial_model_evaluation"
-      : item.approval_scope === scope;
-    return isApproved && allowedForScope;
-  });
+export function selectedApprovedItems(items: MathItem[]): MathItem[] {
+  return items.filter((item) => item.review_status === "approved" && item.license_status === "clear");
 }

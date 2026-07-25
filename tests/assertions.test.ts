@@ -7,7 +7,6 @@ const item: MathItem = {
   id: "G5-EN-TEST",
   language: "en",
   review_status: "approved",
-  approval_scope: "initial_model_evaluation",
   content_role: "foundation",
   statement: "197 children need minibuses with 15 seats each.",
   canonical_answer: "14",

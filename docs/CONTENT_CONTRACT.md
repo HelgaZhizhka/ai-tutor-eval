@@ -11,7 +11,6 @@ The tutor is only as safe and useful as its task content. A task cannot be consi
 | Stable task ID | Links the task, evaluation cases and later learner progress. |
 | Language and locale | Ensures the correct student-facing version is used. |
 | Review and approval status | Prevents draft content entering a pedagogical evaluation. |
-| Approval scope | Distinguishes technical smoke testing from `initial_model_evaluation` items. |
 | Statement | The student-facing problem. |
 | Canonical answer and accepted answer forms | Gives a reliable outcome to check against. |
 | Canonical solution steps | Provides one proven route for tutor context; it is not the only allowed route. |
@@ -43,7 +42,7 @@ For each of the five selected Grade 5 tasks, the Content Lead confirms:
 4. the hint ladder;
 5. common misconceptions and appropriate next tutor action;
 6. any important alternative approach to recognise;
-7. `review_status: approved`, `license_status: clear`, and `approval_scope: initial_model_evaluation`.
+7. `review_status: approved` and `license_status: clear`.
 
 ## Translation rule
 
