@@ -19,9 +19,10 @@ export async function writeSummary(results: ModelRunResult[], label: string): Pr
   await mkdir(outputDirectory, { recursive: true });
   const file = path.join(outputDirectory, `${label}-summary.csv`);
   const rows = [
-    ["model", "case_id", "repeat_index", "critical_failure", "assessment_match", "mistake_id_match", "answer_leakage", "latency_ms", "input_tokens", "output_tokens", "cost_usd", "provider", "generation_id", "error"],
+    ["model", "prompt_version", "case_id", "repeat_index", "critical_failure", "assessment_match", "mistake_id_match", "answer_leakage", "latency_ms", "input_tokens", "output_tokens", "cost_usd", "provider", "generation_id", "error"],
     ...results.map((result) => [
       result.model,
+      result.prompt_version,
       result.case_id,
       result.repeat_index,
       result.assertions.some((assertion) => assertion.severity === "gate" && !assertion.passed),
@@ -63,7 +64,7 @@ export async function writeModelScorecard(results: ModelRunResult[], label: stri
   const file = path.join(outputDirectory, `${label}-model-scorecard.csv`);
   const models = [...new Set(results.map((result) => result.model))];
   const rows = [
-    ["model", "runs", "gate_pass_rate", "assessment_accuracy", "mistake_id_accuracy", "answer_leakage_failures", "p50_latency_ms", "p95_latency_ms", "total_cost_usd", "providers"],
+    ["model", "prompt_versions", "runs", "gate_pass_rate", "assessment_accuracy", "mistake_id_accuracy", "answer_leakage_failures", "p50_latency_ms", "p95_latency_ms", "total_cost_usd", "providers"],
     ...models.map((model) => {
       const modelResults = results.filter((result) => result.model === model);
       const gatePasses = modelResults.map((result) => !result.error && !result.assertions.some((assertion) => assertion.severity === "gate" && !assertion.passed));
@@ -72,9 +73,11 @@ export async function writeModelScorecard(results: ModelRunResult[], label: stri
       const leakageFailures = modelResults.filter((result) => assertionPassed(result, "A6-answer-leakage") === false).length;
       const latencies = modelResults.map((result) => result.latency_ms).filter((value) => Number.isFinite(value));
       const providers = [...new Set(modelResults.map((result) => result.provider_name).filter(Boolean))].join(" | ");
+      const promptVersions = [...new Set(modelResults.map((result) => result.prompt_version))].join(" | ");
       const totalCost = modelResults.reduce((sum, result) => sum + (result.cost_usd ?? 0), 0);
       return [
         model,
+        promptVersions,
         modelResults.length,
         rateLabel(gatePasses),
         rateLabel(assessmentMatches),

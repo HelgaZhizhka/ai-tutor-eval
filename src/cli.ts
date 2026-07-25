@@ -2,7 +2,7 @@ import "dotenv/config";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { runAssertions } from "./assertions.js";
-import { buildTutorContext, loadTutorPrompt } from "./build-request.js";
+import { buildTutorContext, loadTutorPrompt, TUTOR_PROMPT_VERSION } from "./build-request.js";
 import { loadCases, loadItems, selectedApprovedItems } from "./content.js";
 import { estimateCostUsd, fetchModelPricing } from "./model-catalog.js";
 import { callOpenRouter } from "./openrouter.js";
@@ -145,6 +145,7 @@ async function main(): Promise<void> {
             run_id: crypto.randomUUID(),
             timestamp,
             model,
+            prompt_version: TUTOR_PROMPT_VERSION,
             case_id: testCase.case_id,
             repeat_index: repeatIndex,
             decision: response.decision,
@@ -164,6 +165,7 @@ async function main(): Promise<void> {
             run_id: crypto.randomUUID(),
             timestamp,
             model,
+            prompt_version: TUTOR_PROMPT_VERSION,
             case_id: testCase.case_id,
             repeat_index: repeatIndex,
             decision: null,

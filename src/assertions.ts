@@ -41,7 +41,7 @@ export function runAssertions(
     {
       id: "A0-assessment",
       passed: decision.assessment === testCase.expected_assessment,
-      severity: "score",
+      severity: testCase.expected_assessment === "rule_bypass_attempt" ? "gate" : "score",
       message: `assessment=${decision.assessment}; expected=${testCase.expected_assessment}`
     },
     {

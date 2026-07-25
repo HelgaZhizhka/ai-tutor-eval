@@ -2,8 +2,10 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type { EvalCase, MathItem } from "./types.js";
 
+export const TUTOR_PROMPT_VERSION = "tutor.v1";
+
 export async function loadTutorPrompt(): Promise<string> {
-  return readFile(path.join(process.cwd(), "prompts", "tutor.v1.md"), "utf8");
+  return readFile(path.join(process.cwd(), "prompts", `${TUTOR_PROMPT_VERSION}.md`), "utf8");
 }
 
 export function buildTutorContext(item: MathItem, testCase: EvalCase): Record<string, unknown> {

@@ -86,6 +86,7 @@ export interface ModelRunResult {
   run_id: string;
   timestamp: string;
   model: string;
+  prompt_version: string;
   case_id: string;
   repeat_index: number;
   decision: TutorDecision | null;
