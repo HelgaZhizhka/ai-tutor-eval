@@ -39,7 +39,7 @@ This is guidance for the tutor, not a closed list. A student may still use anoth
 
 ## What the Content Lead approves for the first evaluation
 
-For each of the five selected Grade 5 tasks, the Content Lead confirms:
+For each selected Grade 5 task, the Content Lead confirms:
 
 1. the task statement and suitable Grade 5 level;
 2. canonical and accepted answers;

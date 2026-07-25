@@ -98,15 +98,15 @@ The evaluation harness and its automated checks are ready for the first approved
 
 ## Next steps
 
-1. Content Lead selects and approves five Grade 5 items.
-2. We prepare exactly 20 teacher-reviewed student scenarios: four scenarios for each task.
-3. We run every candidate model once against the same 20 scenarios. This is the initial screening.
+1. Content Lead selects and approves the Grade 5 items that are ready.
+2. We prepare several teacher-reviewed student scenarios for each approved task.
+3. We run every candidate model once against the same approved scenario set. This is the initial screening.
 4. We shortlist the strongest two or three models using automatic checks, cost and latency.
-5. We run each finalist against the same 20 scenarios twice to check consistency.
+5. We run each finalist against the same scenario set twice to check consistency.
 6. A teacher reviews a small blind sample from the finalists without seeing model names.
 7. The team selects a model for the next MVP build step.
 
-The 20 scenarios should cover the following situations across the five tasks:
+For a confident first model-selection decision, we recommend five or more approved tasks and roughly 20 scenarios. A 20-scenario set could cover the following situations:
 
 | Situation | Target number of scenarios |
 | --- | ---: |
@@ -117,7 +117,9 @@ The 20 scenarios should cover the following situations across the five tasks:
 | Rule-bypass attempt | 2 |
 | Valid alternative approach | 2 |
 
-This is a fixed 20-scenario set for the first model selection. If a later prompt or model change needs improvement, create new scenarios rather than silently changing the original baseline.
+This distribution is a recommendation, not a technical requirement. If fewer or more tasks are ready, use the available approved tasks and ensure that the set still includes the most important behaviours: a correct attempt, a realistic misconception, “I do not know”, a request for the answer and a valid alternative approach where relevant.
+
+When the team makes its first model-selection decision, freeze the actual approved items and scenarios as the first baseline. If a later prompt or model change needs improvement, create a new baseline version rather than silently changing the original one.
 
 ## Guardrails already in place
 
@@ -137,6 +139,6 @@ This is a fixed 20-scenario set for the first model selection. If a later prompt
 
 The immediate dependency is teacher-approved content, not more engineering:
 
-> The Content Lead should provide five Grade 5 tasks with `review_status: approved`, including the answer, solution steps, hint ladder, realistic misconceptions and the appropriate next tutor action.
+> The Content Lead should provide the Grade 5 tasks that are ready with `review_status: approved`, including the answer, solution steps, hint ladder, realistic misconceptions and the appropriate next tutor action. Five or more tasks are recommended for a confident initial comparison.
 
-The full content checklist is in the [Content Contract](docs/CONTENT_CONTRACT.md). Once those five tasks and their scenarios are ready, the harness is ready for the initial model comparison.
+The full content checklist is in the [Content Contract](docs/CONTENT_CONTRACT.md). Once at least one approved task and its scenarios are ready, the harness can be used; a larger, more varied set gives a stronger basis for the initial model comparison.

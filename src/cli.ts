@@ -67,8 +67,8 @@ async function main(): Promise<void> {
   const selected = allCases
     .filter((testCase) => approvedItems.some((item) => item.id === testCase.problem_id && item.language === testCase.language));
 
-  if (approvedItems.length < 5 || selected.length === 0) {
-    throw new Error("No approved evaluation set is available yet. Add five teacher-approved items under content/items/ and their matching cases in cases/base-cases.yaml.");
+  if (approvedItems.length === 0 || selected.length === 0) {
+    throw new Error("No approved evaluation set is available yet. Add at least one teacher-approved item under content/items/ and its matching case in cases/base-cases.yaml.");
   }
 
   const calls = models.length * selected.length * repeats;

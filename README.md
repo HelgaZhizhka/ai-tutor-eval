@@ -26,7 +26,7 @@ This harness evaluates the AI decision layer only. It does not replace UI tests,
 
 - Main evaluation language: English.
 - Russian and Uzbek (`uz-UZ`, Latin script) are added only after a human reviewer approves translations.
-- The first pedagogical evaluation uses five teacher-approved items.
+- The first pedagogical evaluation uses the teacher-approved items that are ready; five or more items are recommended for a confident model-selection decision.
 - All API calls are opt-in and require `OPENROUTER_API_KEY`. No real student data may be added.
 
 ## Safety rules
@@ -51,4 +51,4 @@ npm test
 npm run eval:screening -- --dry-run
 ```
 
-The last command previews the initial comparison and will refuse to run until five teacher-approved items and their matching scenarios are present.
+The last command previews the initial comparison and will refuse to run until at least one teacher-approved item and its matching scenario are present.
