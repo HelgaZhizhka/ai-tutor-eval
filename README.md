@@ -37,5 +37,3 @@ The last command previews the initial comparison and will refuse to run until fi
 ## Sources
 
 - [Original content bank](content/original/grade5_math_item_bank.v0.1.md)
-- [Initial Claude Code brief](docs/claude-code-brief-v1.md)
-- [Content review requests](REVIEW_NEEDED.md)

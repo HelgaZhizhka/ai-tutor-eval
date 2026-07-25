@@ -21,7 +21,6 @@ Olympiad Academy helps beginner Grade 5 students build mathematical problem-solv
 | [AI Tutor MVP](AI_TUTOR_MVP.md) | The mission, responsibilities, boundaries and interaction flow of the tutor. |
 | [Content Contract](CONTENT_CONTRACT.md) | What a teacher-approved task must contain before it can be used by the tutor or model evaluation. |
 | [Evaluation Harness](../TEAM_README.md) | How candidate LLMs are compared before one is selected for the MVP. |
-| [Content Review Needed](../REVIEW_NEEDED.md) | The current decisions and approvals requested from the Content Lead. |
 
 ## Core principle
 
