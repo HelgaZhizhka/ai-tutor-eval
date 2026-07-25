@@ -5,6 +5,23 @@ This repository evaluates candidate LLMs for Olympiad Academy's constrained Grad
 For a non-technical team-meeting overview, see [TEAM_README.md](TEAM_README.md).
 For the shared MVP product and architecture decisions, start with the [Olympiad Academy MVP Wiki](docs/README.md).
 
+## Purpose and reuse
+
+This is a reusable evaluation and regression harness for the AI Tutor decision layer. It helps the team make evidence-based changes instead of relying on a model's public benchmark score or an individual chat impression.
+
+The first use is to compare candidate models on the same teacher-approved Grade 5 scenarios and select a model for the MVP. After that, the same harness should be run again whenever a material AI behaviour changes, including:
+
+- a change of model, model provider or provider configuration;
+- a new tutor prompt version;
+- a change to the structured response schema or tutor-policy rules;
+- a new hint ladder, important misconception or answer-leakage rule;
+- a new supported language;
+- a new product scenario, such as a longer tutoring conversation.
+
+After the first approved task set and its scenarios are tested, preserve them as `golden-v1`. Do not silently edit that baseline: create a new version when the product needs additional coverage. This makes it possible to compare a later model or prompt with the same evidence.
+
+This harness evaluates the AI decision layer only. It does not replace UI tests, product integration tests, deterministic mathematics checks or supervised pilot testing with real learners.
+
 ## Current scope
 
 - Main evaluation language: English.
