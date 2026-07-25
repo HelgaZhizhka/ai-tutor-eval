@@ -3,6 +3,7 @@
 This repository evaluates candidate LLMs for Olympiad Academy's constrained Grade 5 mathematics tutor. It does **not** build the product tutor.
 
 For a non-technical team-meeting overview, see [TEAM_README.md](TEAM_README.md).
+For the shared MVP product and architecture decisions, start with the [Olympiad Academy MVP Wiki](docs/README.md).
 
 ## Current scope
 
