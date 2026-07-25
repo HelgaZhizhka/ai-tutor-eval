@@ -34,6 +34,37 @@ Evidence-based model shortlist
 
 For each scenario, the model must return a small structured decision rather than an unrestricted chat response. For example, it identifies the situation, chooses the next allowed action, selects a hint level and writes a short student-facing message.
 
+## What one scenario tests
+
+A scenario is a controlled version of one moment in a student conversation. It asks every candidate model the same question:
+
+> Given this teacher-approved task and this student's latest attempt, what should the tutor do next?
+
+The model receives the approved task context, including the answer, hint ladder and known misconceptions, together with the student's attempt and the constraints for that moment. For example:
+
+```text
+Student attempt: "I made two groups of five."
+Known misconception: the student has not used every item in the task.
+Allowed action: ask_guiding_question
+Maximum hint level: 1
+Answer must not be revealed: true
+```
+
+It must return a structured `TutorDecision`, not a free-form solution:
+
+```json
+{
+  "assessment": "common_mistake",
+  "mistake_id": "items_not_all_used",
+  "next_action": "ask_guiding_question",
+  "hint_level": 1,
+  "message_to_student": "You have made a start. Can you check whether every item in the task is in one of your groups?",
+  "response_language": "en"
+}
+```
+
+We do not require every model to use the exact same wording. We check whether it understood the student's situation, chose a permitted next move, stayed within the hint limit, avoided revealing the answer and wrote a useful Grade 5 response. The Content Lead reviews the pedagogical quality of a sample from the strongest models.
+
 ## What we test
 
 The initial English evaluation will test whether a model:
