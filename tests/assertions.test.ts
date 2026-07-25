@@ -7,6 +7,7 @@ const item: MathItem = {
   id: "G5-EN-TEST",
   language: "en",
   review_status: "approved",
+  approval_scope: "initial_model_evaluation",
   content_role: "foundation",
   statement: "197 children need minibuses with 15 seats each.",
   canonical_answer: "14",
@@ -45,8 +46,7 @@ const validDecision: TutorDecision = {
   next_action: "ask_guiding_question",
   hint_level: 1,
   message_to_student: "Good start. After filling 13 buses, are there any children still waiting?",
-  response_language: "en",
-  confidence: 0.82
+  response_language: "en"
 };
 
 describe("evaluation assertions", () => {

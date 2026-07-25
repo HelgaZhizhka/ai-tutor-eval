@@ -9,8 +9,7 @@
     "next_action",
     "hint_level",
     "message_to_student",
-    "response_language",
-    "confidence"
+    "response_language"
   ],
   "properties": {
     "assessment": {
@@ -55,11 +54,6 @@
     "response_language": {
       "type": "string",
       "enum": ["en", "ru", "uz"]
-    },
-    "confidence": {
-      "type": "number",
-      "minimum": 0,
-      "maximum": 1
     }
   }
 }

@@ -9,14 +9,19 @@ For a non-technical team-meeting overview, see [TEAM_README.md](TEAM_README.md).
 - Main evaluation language: English.
 - Russian and Uzbek (`uz-UZ`, Latin script) are added only after a human reviewer approves translations.
 - The first pedagogical evaluation uses five teacher-approved items.
+- Approved items for model selection must use `approval_scope: initial_model_evaluation`; `technical_smoke` items are excluded from screening and shortlist reports.
 - All API calls are opt-in and require `OPENROUTER_API_KEY`. No real student data may be added.
 
 ## Safety rules
 
 1. Keep all API keys in local environment variables or an ignored `.env` file.
-2. Never treat a draft item, AI translation or model confidence value as teacher validation.
+2. Never treat a draft item or AI translation as teacher validation.
 3. Preserve raw model responses locally in `results/raw/`; they are intentionally ignored by Git.
 4. Before a paid batch, inspect the estimated maximum cost and use the configured safety cap.
+
+## Why this pilot uses a custom runner
+
+We intentionally use a small TypeScript runner rather than Promptfoo for the pilot. It gives direct control over the strict tutor JSON contract, project-specific checks such as hint limits and answer leakage, OpenRouter cost controls, upstream-provider logging and Uzbek text normalization. We can revisit Promptfoo later if the evaluation suite grows into frequent large-scale regression testing.
 
 ## Commands
 
