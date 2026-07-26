@@ -57,4 +57,4 @@ For each selected Grade 5 task, the Content Lead confirms:
 
 ## Translation rule
 
-The current templates are in English because the first received materials were in English; the first evaluation language is still a team decision. Russian and Uzbek versions are separate reviewed content, not automatic translations performed by the model under evaluation. Uzbek MVP content uses Latin script.
+The current templates are in English because the first received materials were in English. The team must decide the MVP language scope and which language versions of the AI Tutor will be evaluated before the demo. Every learner-facing tutor language is separate reviewed content, not an automatic translation performed by the model under evaluation. Uzbek MVP content uses Latin script.

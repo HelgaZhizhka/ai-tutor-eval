@@ -24,8 +24,8 @@ This harness evaluates the AI decision layer only. It does not replace UI tests,
 
 ## Current scope
 
-- Current templates and examples are in English because the first received materials were in English. The team must still confirm the first evaluation language based on approved content and reviewer availability.
-- Russian and Uzbek (`uz-UZ`, Latin script) are added only after a human reviewer approves translations.
+- Current templates and examples are in English because the first received materials were in English. The team must still confirm the MVP language scope and which language versions of the AI Tutor will be evaluated before the demo.
+- Every language in which the AI Tutor is shown to learners needs independently human-reviewed content and scenarios. Uzbek uses Latin script.
 - The first pedagogical evaluation uses the teacher-approved items that are ready; five or more items are recommended for a confident model-selection decision.
 - All API calls are opt-in and require `OPENROUTER_API_KEY`. No real student data may be added.
 

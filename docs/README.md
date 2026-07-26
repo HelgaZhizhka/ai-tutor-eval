@@ -12,7 +12,7 @@ Olympiad Academy helps beginner Grade 5 students build mathematical problem-solv
 - First learner: a beginner around Grade 5 who has not previously participated in olympiads.
 - First market: Uzbekistan.
 - Delivery: web first.
-- Current templates use English because the first received materials were in English. The first evaluation language remains a team decision based on approved content and reviewer availability. Russian and Uzbek (`uz-UZ`, Latin script) follow human review of translations.
+- Current templates use English because the first received materials were in English. The team must decide the MVP language scope and which language versions of the AI Tutor will be evaluated before the demo. Every learner-facing tutor language needs independently human-reviewed content and scenarios; Uzbek uses Latin script.
 
 ## Read next
 
