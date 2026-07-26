@@ -22,7 +22,7 @@ The tutor is only as safe and useful as its task content. A task cannot be consi
 | Answer-leakage terms | Supports automatic checks that the tutor did not reveal the result too early. |
 | Source and licence status | Confirms that the item is appropriate for use. |
 
-Use [the item template](../content/items/ITEM.template.yaml) as the starting point for a new task. The evaluation runner validates this structure before it sends any API request.
+Content Leads can first use [the Markdown task-batch template](../content/CONTENT_LEAD_TASK_BATCH_TEMPLATE.md); the technical team then transfers approved tasks into [the YAML item template](../content/items/ITEM.template.yaml). The evaluation runner validates the YAML structure before it sends any API request.
 Use [the scenario template](../cases/base-cases.template.yaml) for the matching student scenarios.
 
 ## Active evaluation scenarios
