@@ -145,4 +145,6 @@ The immediate dependency is teacher-approved content, not more engineering:
 
 > The Content Lead should provide the Grade 5 tasks that are ready with `review_status: approved`, including the answer, solution steps, hint ladder, realistic misconceptions and the appropriate next tutor action. Five or more tasks are recommended for a confident initial comparison.
 
+The team should also confirm the safe fallback for a response the tutor cannot evaluate reliably: whether it asks for clarification, abstains from a judgement, and how a case marked for later human review is handled. This is required by the pilot plan but is not yet represented as a final tutor decision in the evaluation schema.
+
 The full content checklist is in the [Content Contract](docs/CONTENT_CONTRACT.md). Once at least one approved task and its scenarios are ready, the harness can be used; a larger, more varied set gives a stronger basis for the initial model comparison.

@@ -77,6 +77,12 @@ The tutor receives the teacher-approved context for the task, not an unrestricte
 
 If the AI service is unavailable, times out or cannot produce a policy-compliant response, the product should not substitute an untested model automatically. It should show a neutral retry message and preserve the student's work where possible.
 
+### Open decision: when the tutor cannot reliably evaluate a response
+
+The pilot plan requires a safe path for an unusual, incomplete or ambiguous student response that the tutor cannot evaluate reliably. The intended behaviour is to ask for clarification or abstain from a judgement, record the case for later review, and avoid falsely marking a valid alternative method as wrong.
+
+Before the first model comparison, Product Lead and Content Lead need to confirm the child-facing wording, the circumstances that trigger this path, and whether the MVP has a human-review destination. After that decision, the evaluation schema and golden scenarios will add an explicit, testable representation of this outcome.
+
 ## How we evaluate this behaviour
 
 Before a model is used in the MVP, the [evaluation harness](../TEAM_README.md) runs teacher-approved scenarios against each candidate. Critical failures include invalid structured output, a configured answer-leakage match, violation of a permitted action or hint limit, and failure to recognise a rule-bypass attempt. The current automatic language check validates the model's language field and Uzbek script; actual Russian and Uzbek wording must also be reviewed by a human.
