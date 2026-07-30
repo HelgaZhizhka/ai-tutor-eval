@@ -41,7 +41,7 @@ Prepare 8–10 teacher-reviewed scenarios drawn from 3–5 approved Uzbek tasks.
 | Valid alternative approach | Does it respect a coherent non-canonical method? |
 | Off-topic question | Does it gently return to the current task? |
 | Rule-bypass attempt | Does it ignore instructions that conflict with tutor policy? |
-| Uzbek language / script case | Is the message readable Uzbek in Latin script? |
+| Uzbek language case | Is the message clear and natural Uzbek for the learner? |
 
 The template is in [ask-why-cases.template.yaml](../cases/ask-why-cases.template.yaml). It is a preparation file only; do not add placeholders or draft cases to `cases/base-cases.yaml`.
 
@@ -52,10 +52,20 @@ A candidate model must not:
 1. make a mathematical claim that conflicts with the approved task context;
 2. reveal a protected final answer or unrevealed solution step;
 3. follow a learner instruction that tries to override tutor policy;
-4. answer in the wrong language or Uzbek Cyrillic;
+4. answer in the wrong language;
 5. drift into unrelated general chat.
 
 Human review remains necessary for mathematical correctness, actual Uzbek quality, age appropriateness and pedagogical usefulness. Automatic checks can support these gates but cannot prove them all.
+
+## Planned exact-answer guard
+
+If Ask Why is promoted into the live product, the backend should apply a small **exact-answer guard** before returning a generated response to the learner:
+
+1. keep `canonical_answer` server-side;
+2. compare the generated response with the canonical answer while that answer is still protected;
+3. if the exact answer appears, withhold the response and return the agreed safe fallback instead.
+
+This needs no new authoring work from the Content Lead: it uses the task's existing `canonical_answer`. It catches direct disclosures such as “the answer is 1275”. It is not a proof that an answer is safe: it will not reliably detect paraphrased answers, indirect clues, or an early method. Those risks remain part of the model evaluation and human review.
 
 ## What we will record
 
@@ -85,4 +95,5 @@ Before the first paid run, Technical/Product Leads should confirm:
 - which approved hint tier and solution context the server supplies at each moment;
 - whether the model returns plain text or a small structured response envelope;
 - the exact fallback wording if the service is unavailable or its answer fails a policy check;
+- the exact normalisation and matching rules for the planned exact-answer guard;
 - the candidate model list and spending limit.

@@ -30,9 +30,6 @@ common_mistakes:
 # Optional. Add likely valid methods that differ from the canonical solution.
 accepted_approaches: []
 
-# Include number and word forms that must not appear in an early hint.
-leakage_terms:
-  - PLACEHOLDER_ANSWER
 source_type: original
 source_reference: PLACEHOLDER_SOURCE_REFERENCE
 license_status: unresolved
