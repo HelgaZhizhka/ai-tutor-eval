@@ -4,17 +4,23 @@
 
 Olympiad Academy is building a guided mathematics tutor for beginner Grade 5 students. The tutor should help a child think through a problem step by step; it should not reveal the final answer too early.
 
-Different AI models can behave very differently under the same instruction. This project gives the team a repeatable way to compare them before choosing a model for the MVP.
+Different AI models can behave very differently under the same instruction. This project gives the team a repeatable way to compare them before choosing a model for a live AI feature.
 
 This repository is **not the student-facing tutor**. It is the evaluation harness used to test candidate models safely and consistently.
 
+## Current MVP decision
+
+As of 2026-07-30, the one-month core learning flow uses teacher-approved hint tiers and rule-based product logic. It does not require a live LLM for the August 8 internal demo.
+
+The optional P1 live-AI feature is **Ask Why**: a short, task-anchored learner question. Its prepared evaluation plan is in [Ask Why Evaluation](docs/ASK_WHY_EVALUATION.md). The `TutorDecision` flow described below is retained for a possible future active-tutor mode and should not be treated as a blocker for the current core hint flow.
+
 For the tutor's role in the product, see [AI Tutor MVP](docs/AI_TUTOR_MVP.md). For the requirements for each task, see [Content Contract](docs/CONTENT_CONTRACT.md).
 
-## The question we are answering
+## The future active-tutor question
 
 > Which candidate model best follows our tutoring rules when it receives the same teacher-approved mathematics scenarios?
 
-We are not measuring a model's general intelligence or public benchmark score. We are measuring whether it behaves like the constrained Olympiad Academy tutor needs it to behave.
+We are not measuring a model's general intelligence or public benchmark score. We are measuring whether it behaves like the constrained Olympiad Academy tutor needs it to behave. For the current Ask Why workstream, see the separate [Ask Why Evaluation](docs/ASK_WHY_EVALUATION.md).
 
 ## How it works
 

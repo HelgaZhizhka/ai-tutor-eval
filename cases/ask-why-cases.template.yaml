@@ -1,0 +1,31 @@
+# Preparation template for the optional P1 Ask Why model evaluation.
+# Do not add draft cases to cases/base-cases.yaml.
+# Replace every placeholder only after the referenced task is approved and licence-clear.
+
+ask_why_cases:
+  - case_id: PLACEHOLDER-ASK-WHY-001
+    problem_id: PLACEHOLDER-APPROVED-UZ-ITEM-ID
+    language: uz
+    review_status: draft
+    # Required when review_status is approved:
+    # reviewed_by: Content Lead name
+    # reviewed_at: YYYY-MM-DD
+
+    # One of: targeted_explanation, asks_for_answer, common_misconception,
+    # does_not_know, valid_alternative_approach, off_topic, rule_bypass_attempt,
+    # uzbek_language_script
+    scenario_type: targeted_explanation
+
+    # The attempt and hint tier that would already be visible in the real product.
+    student_attempt: ""
+    revealed_hint_tier: 0
+    visible_hint: ""
+    ask_why_question: ""
+
+    # Keep true unless the product has already deliberately revealed the full walkthrough.
+    answer_must_not_be_revealed: true
+
+    # Written and confirmed by Content Lead. This is the behavioural expectation,
+    # not exact wording the model must copy.
+    expected_behaviour: ""
+    reviewer_comment: ""

@@ -1,12 +1,20 @@
-# AI Tutor MVP
+# AI Support Scope for the MVP
 
-## Mission
+## Current product decision — 2026-07-30
+
+The one-month MVP's core learning flow does **not** call an LLM to check answers, select hint tiers or adjust difficulty. It uses teacher-approved tasks, pre-authored hint tiers, deterministic answer checks where possible, and transparent product rules.
+
+The optional P1 live-AI feature is **Ask Why**: a short learner question anchored to the current task and currently revealed support. It is not required for the August 8 internal demo. Its model evaluation plan is in [Ask Why Evaluation](ASK_WHY_EVALUATION.md).
+
+The more active tutor behaviour below remains a possible later product direction. The existing `TutorDecision` evaluation harness is retained for that direction, but it must not be treated as the required implementation for the current rule-based hint flow.
+
+## Future active-tutor mission
 
 The AI Tutor helps a beginner take the next productive reasoning step in a teacher-approved mathematics problem. It is not an answer generator and it does not replace a mathematics teacher.
 
 The desired outcome is not only that the student reaches an answer. The student should be able to explain the idea they used and feel able to attempt the next problem.
 
-## What the AI does in the first MVP
+## What a future active tutor may do
 
 The AI Tutor has four narrowly defined responsibilities inside the current task.
 
@@ -28,7 +36,7 @@ The canonical solution is a reliable reference, not the only permitted method. I
 
 If the tutor cannot verify an unusual approach confidently, it asks the student to explain the key step. It must not label a method incorrect merely because it differs from the supplied solution.
 
-## What the AI does not do in the MVP
+## What the AI does not do
 
 - It does not write new problems, solutions or hints without teacher review.
 - It does not decide whether a student has mastered a topic.
@@ -41,12 +49,13 @@ If the tutor cannot verify an unusual approach confidently, it asks the student 
 | Component or role | Responsibility |
 | --- | --- |
 | Content Lead / mathematics teacher | Approves task wording, answers, solution examples, hint ladder, misconceptions and guidance. |
-| Adaptive practice engine | Uses structured attempt and progress data to select diagnostics or the next suitable task. |
-| AI Tutor | Conducts the small conversational move within the current task. |
+| Adaptive practice engine | Uses structured attempt and progress data to select diagnostics or the next suitable task. In the current MVP, it uses transparent rules rather than LLM decisions. |
+| Ask Why LLM (P1) | Explains a learner's narrow question about the current task, grounded in approved context. |
+| Future active AI Tutor | May conduct a small conversational move within the current task after its behaviour has been evaluated. |
 | Deterministic verifier | Checks numeric or symbolic facts where a reliable programmatic check is available. |
 | Human teacher | Supports difficult cases, motivation, strategy and optional live mentoring. |
 
-## Student interaction flow
+## Future active-tutor interaction flow
 
 ```text
 Student attempt
@@ -64,7 +73,7 @@ Structured attempt data updates progress and informs the next task
 
 The tutor receives the teacher-approved context for the task, not an unrestricted library of internet mathematics. The final “next task” decision belongs to the adaptive practice layer, not to the tutor's conversational model.
 
-## Required tutor behaviour
+## Required behaviour for Ask Why and any future tutor mode
 
 - Use the student's requested language; Uzbek content and replies use Latin script.
 - Keep the response short and suitable for a Grade 5 beginner.
@@ -77,14 +86,14 @@ The tutor receives the teacher-approved context for the task, not an unrestricte
 
 If the AI service is unavailable, times out or cannot produce a policy-compliant response, the product should not substitute an untested model automatically. It should show a neutral retry message and preserve the student's work where possible.
 
-### Open decision: when the tutor cannot reliably evaluate a response
+### Future active-tutor decision: when the tutor cannot reliably evaluate a response
 
 The pilot plan requires a safe path for an unusual, incomplete or ambiguous student response that the tutor cannot evaluate reliably. The intended behaviour is to ask for clarification or abstain from a judgement, record the case for later review, and avoid falsely marking a valid alternative method as wrong.
 
-Before the first model comparison, Product Lead and Content Lead need to confirm the child-facing wording, the circumstances that trigger this path, and whether the MVP has a human-review destination. After that decision, the evaluation schema and golden scenarios will add an explicit, testable representation of this outcome.
+Before a future active-tutor model comparison, Product Lead and Content Lead need to confirm the child-facing wording, the circumstances that trigger this path, and whether the MVP has a human-review destination. After that decision, the evaluation schema and golden scenarios will add an explicit, testable representation of this outcome.
 
-## How we evaluate this behaviour
+## How we evaluate live-AI behaviour
 
-Before a model is used in the MVP, the [evaluation harness](../TEAM_README.md) runs teacher-approved scenarios against each candidate. Critical failures include invalid structured output, a configured answer-leakage match, violation of a permitted action or hint limit, and failure to recognise a rule-bypass attempt. The current automatic language check validates the model's language field and Uzbek script; actual Russian and Uzbek wording must also be reviewed by a human.
+Before a model is used in a live feature, it must be evaluated on teacher-approved scenarios. For the current P1 Ask Why feature, use [Ask Why Evaluation](ASK_WHY_EVALUATION.md). The retained `TutorDecision` harness evaluates the future active-tutor mode. Critical failures include answer leakage, a mathematically incorrect response, policy bypass and incorrect learner-facing language. Automatic checks support these gates, but actual Uzbek wording and pedagogical usefulness must also be reviewed by a human.
 
 The golden dialogue set must include at least one valid alternative-approach scenario. A model that forces a correct alternative method back to the canonical solution is not behaving as the desired tutor.

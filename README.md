@@ -9,7 +9,7 @@ For the shared MVP product and architecture decisions, start with the [Olympiad 
 
 This is a reusable evaluation and regression harness for the AI Tutor decision layer. It helps the team make evidence-based changes instead of relying on a model's public benchmark score or an individual chat impression.
 
-The first use is to compare candidate models on the same teacher-approved Grade 5 scenarios and select a model for the MVP. After that, the same harness should be run again whenever a material AI behaviour changes, including:
+The immediate prepared use is to compare candidate models for the optional Ask Why feature on the same teacher-approved Uzbek scenarios. The retained active-tutor harness can later be used whenever a material AI behaviour changes, including:
 
 - a change of model, model provider or provider configuration;
 - a new tutor prompt version;
@@ -24,9 +24,10 @@ This harness evaluates the AI decision layer only. It does not replace UI tests,
 
 ## Current scope
 
-- Current templates and examples are in English because the first received materials were in English. The team must still confirm the MVP language scope and which language versions of the AI Tutor will be evaluated before the demo.
-- Every language in which the AI Tutor is shown to learners needs independently human-reviewed content and scenarios. Uzbek uses Latin script.
-- The first pedagogical evaluation uses the teacher-approved items that are ready; five or more items are recommended for a confident model-selection decision.
+- The current one-month MVP uses a teacher-approved, rule-based core hint flow. A live LLM is optional P1 functionality for the anchored **Ask Why** feature, not a requirement for the August 8 internal demo.
+- Uzbek (Latin script) is the proposed learner-facing MVP language. The architecture should remain localisation-ready, but Russian and English content must be independently reviewed before it is shown to learners.
+- [Ask Why Evaluation — Phase A](docs/ASK_WHY_EVALUATION.md) contains the prepared scenario plan. It will use approved Uzbek items when they are ready.
+- The existing `TutorDecision` runner is retained for a possible future active-tutor mode, where a model evaluates an attempt and selects a next tutoring move. It is not a blocker for the current rule-based hint flow.
 - All API calls are opt-in and require `OPENROUTER_API_KEY`. No real student data may be added.
 
 ## Safety rules

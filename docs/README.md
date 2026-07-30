@@ -4,7 +4,7 @@ This folder records the product and engineering decisions for the first Olympiad
 
 ## MVP in one sentence
 
-Olympiad Academy helps beginner Grade 5 students build mathematical problem-solving skills through teacher-approved tasks, adaptive practice and an AI tutor that guides reasoning without revealing the answer too early.
+Olympiad Academy helps beginner Grade 5 students build mathematical problem-solving skills through teacher-approved tasks and staged hints that do not reveal the answer too early. The first live-AI candidate is the optional, task-anchored Ask Why feature.
 
 ## Product boundaries
 
@@ -18,7 +18,8 @@ Olympiad Academy helps beginner Grade 5 students build mathematical problem-solv
 
 | Document | Purpose |
 | --- | --- |
-| [AI Tutor MVP](AI_TUTOR_MVP.md) | The mission, responsibilities, boundaries and interaction flow of the tutor. |
+| [AI Tutor MVP](AI_TUTOR_MVP.md) | The current rule-based MVP scope and the future active-tutor direction. |
+| [Ask Why Evaluation](ASK_WHY_EVALUATION.md) | Prepared plan and template for selecting a model for the optional live Ask Why feature. |
 | [Content Contract](CONTENT_CONTRACT.md) | What a teacher-approved task must contain before it can be used by the tutor or model evaluation. |
 | [Evaluation Harness](../TEAM_README.md) | How candidate LLMs are compared before one is selected for the MVP. |
 
