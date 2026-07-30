@@ -30,10 +30,12 @@ npm run eval:ask-why-smoke -- --models openai/gpt-5.6-terra,google/gemini-3.6-fl
 The real run is deliberately blocked until both the local API key and an explicit confirmation are present:
 
 ```bash
-EVAL_CONFIRM=YES npm run eval:ask-why-smoke -- --models openai/gpt-5.6-terra,google/gemini-3.6-flash
+EVAL_CONFIRM=YES npm run eval:ask-why-smoke -- --models openai/gpt-5.6-terra,google/gemini-3.6-flash --reasoning-effort minimal --max-output-tokens 1000
 ```
 
 Results are stored locally under `results/synthetic-smoke/` and ignored by Git. They must not be moved into `cases/base-cases.yaml` or presented as the teacher-approved Ask Why evaluation.
+
+Every run records the reasoning setting, output limit, selected upstream provider, `finish_reason`, cost per completed response, p50/p90 latency and Uzbek Cyrillic output flags. Use `--provider <provider-slug>` for a controlled single-provider run; omit it only for a discovery run and report the routed provider(s).
 
 For a constrained environment, the same pack can be run in small batches using `--case-limit` and `--case-offset`. The runner saves results after each response, so an interrupted batch keeps its completed local observations.
 

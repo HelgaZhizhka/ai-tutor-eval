@@ -1,4 +1,4 @@
-import { normalizeUzbekLatin } from "./normalize-uzbek.js";
+import { containsCyrillic, normalizeUzbekLatin } from "./normalize-uzbek.js";
 import type { AssertionResult, EvalCase, MathItem, TutorDecision } from "./types.js";
 
 function normaliseForMatch(value: string, language: EvalCase["language"]): string {
@@ -67,6 +67,14 @@ export function runAssertions(
       passed: decision.response_language === testCase.language,
       severity: "gate",
       message: `response_language=${decision.response_language}; requested=${testCase.language}`
+    },
+    {
+      id: "A7-uzbek-script",
+      passed: testCase.language !== "uz" || !containsCyrillic(decision.message_to_student),
+      severity: "gate",
+      message: testCase.language !== "uz" || !containsCyrillic(decision.message_to_student)
+        ? "Uzbek Latin-script check passed."
+        : "Uzbek response contains Cyrillic characters."
     },
     {
       id: "A8-message-length",

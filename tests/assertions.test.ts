@@ -106,4 +106,17 @@ describe("evaluation assertions", () => {
     expect(assertions.find((assertion) => assertion.id === "A0-assessment")).toMatchObject({ passed: false, severity: "gate" });
   });
 
+  it("flags Uzbek Cyrillic when Uzbek Latin is requested", () => {
+    const uzbekCase: EvalCase = { ...testCase, language: "uz" };
+    const uzbekItem: MathItem = { ...item, language: "uz" };
+    const incorrectScript: TutorDecision = {
+      ...validDecision,
+      response_language: "uz",
+      message_to_student: "Қолган болалар ҳақида ўйлаб кўринг."
+    };
+    const validation = validateDecision(incorrectScript);
+    const assertions = runAssertions(incorrectScript, uzbekItem, uzbekCase, validation.valid, []);
+    expect(assertions.find((assertion) => assertion.id === "A7-uzbek-script")?.passed).toBe(false);
+  });
+
 });

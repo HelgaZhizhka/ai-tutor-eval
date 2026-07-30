@@ -2,7 +2,7 @@
 
 ## Status
 
-**Technical preflight only. This is not a teacher-approved content evaluation and not a production model-selection decision.**
+**Technical preflight only. This is not a teacher-approved content evaluation and not a production model-selection decision. The model rows have unequal scenario counts, so this report must not be used as a comparative ranking. The later [Real-content Ask Why Evaluation Protocol](REAL_CONTENT_ASK_WHY_EVALUATION_PROTOCOL.md) supersedes this report's comparison method.**
 
 ## Purpose
 

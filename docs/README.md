@@ -20,6 +20,7 @@ Olympiad Academy helps beginner Grade 5 students build mathematical problem-solv
 | --- | --- |
 | [AI Tutor MVP](AI_TUTOR_MVP.md) | The current rule-based MVP scope and the future active-tutor direction. |
 | [Ask Why Evaluation](ASK_WHY_EVALUATION.md) | Prepared plan and template for selecting a model for the optional live Ask Why feature. |
+| [Real-content Ask Why Evaluation Protocol](REAL_CONTENT_ASK_WHY_EVALUATION_PROTOCOL.md) | Controlled model + provider + configuration comparison after Uzbek content approval. |
 | [Content Contract](CONTENT_CONTRACT.md) | What a teacher-approved task must contain before it can be used by the tutor or model evaluation. |
 | [Evaluation Harness](../TEAM_README.md) | How candidate LLMs are compared before one is selected for the MVP. |
 

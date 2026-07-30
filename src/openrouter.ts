@@ -8,6 +8,7 @@ const RETRYABLE_STATUSES = new Set([408, 429, 500, 502, 503, 504]);
 export interface OpenRouterUsage {
   prompt_tokens?: number;
   completion_tokens?: number;
+  reasoning_tokens?: number;
   cost?: number;
 }
 
@@ -34,6 +35,12 @@ export interface TextModelResponse {
   finishReason?: string;
   usage: OpenRouterUsage;
   attemptCount: number;
+}
+
+export interface TextRequestConfiguration {
+  maxOutputTokens?: number;
+  reasoningEffort?: "none" | "minimal" | "low";
+  providerOrder?: string[];
 }
 
 export class OpenRouterRequestError extends Error {
@@ -161,7 +168,7 @@ export async function callOpenRouterText(input: {
   model: string;
   systemPrompt: string;
   context: Record<string, unknown>;
-  maxOutputTokens?: number;
+  configuration?: TextRequestConfiguration;
   fetchImpl?: typeof fetch;
   wait?: (milliseconds: number) => Promise<void>;
 }): Promise<TextModelResponse> {
@@ -187,15 +194,19 @@ export async function callOpenRouterText(input: {
             { role: "user", content: JSON.stringify(input.context) }
           ],
           temperature: 0,
-          max_tokens: input.maxOutputTokens ?? 600,
+          max_tokens: input.configuration?.maxOutputTokens ?? 600,
           reasoning: {
-            effort: "low",
+            // `exclude` hides reasoning from the learner; it does not turn it
+            // off. The selected effort is recorded with every run.
+            effort: input.configuration?.reasoningEffort ?? "low",
             exclude: true
           },
           provider: {
-            // Synthetic scenarios contain no learner data. Permit OpenRouter to
-            // find a compatible provider, while still preferring no retention.
-            allow_fallbacks: true,
+            // If an order is supplied, this is a controlled provider run.
+            // Otherwise this remains a discovery run and the chosen provider is
+            // recorded in the result.
+            ...(input.configuration?.providerOrder ? { order: input.configuration.providerOrder } : {}),
+            allow_fallbacks: input.configuration?.providerOrder ? false : true,
             data_collection: "deny"
           }
         })

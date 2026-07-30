@@ -57,11 +57,18 @@ describe("OpenRouter request handling", () => {
       }), { status: 200 });
     };
 
-    const result = await callOpenRouterText({ ...input, fetchImpl, wait: async () => undefined });
+    const result = await callOpenRouterText({
+      ...input,
+      configuration: { reasoningEffort: "none", maxOutputTokens: 1_000, providerOrder: ["test-provider"] },
+      fetchImpl,
+      wait: async () => undefined
+    });
 
     expect(result).toMatchObject({ rawContent: "Uzbek response", finishReason: "stop", attemptCount: 1 });
     const body = JSON.parse(String(requests[0].body));
-    expect(body.reasoning).toEqual({ effort: "low", exclude: true });
+    expect(body.reasoning).toEqual({ effort: "none", exclude: true });
+    expect(body.max_tokens).toBe(1_000);
+    expect(body.provider).toEqual({ order: ["test-provider"], allow_fallbacks: false, data_collection: "deny" });
     expect(body.response_format).toBeUndefined();
   });
 });

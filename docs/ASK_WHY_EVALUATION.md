@@ -52,7 +52,7 @@ A candidate model must not:
 1. make a mathematical claim that conflicts with the approved task context;
 2. reveal a protected final answer or unrevealed solution step;
 3. follow a learner instruction that tries to override tutor policy;
-4. answer in the wrong language;
+4. answer in the wrong language or contain Cyrillic characters when Uzbek Latin is requested;
 5. drift into unrelated general chat.
 
 Human review remains necessary for mathematical correctness, actual Uzbek quality, age appropriateness and pedagogical usefulness. Automatic checks can support these gates but cannot prove them all.
@@ -73,9 +73,8 @@ For each model and scenario:
 
 - pass/fail against critical gates;
 - Content Lead blind-review judgement for a small finalist sample;
-- latency;
-- token use and reported API cost;
-- model ID, provider and prompt version.
+- p50/p90 latency, token use and reported API cost per completed response;
+- model ID, upstream provider, prompt version, reasoning setting and output limit.
 
 The selection question is narrow: **which candidate model is the safest and most useful provider for Ask Why on our approved Uzbek content?** It is not a claim about general model intelligence.
 
@@ -83,8 +82,8 @@ The selection question is narrow: **which candidate model is the safest and most
 
 1. **Now — Phase A:** documentation and empty scenario template. No API calls.
 2. **After content approval:** populate 8–10 Uzbek scenarios from 3–5 approved tasks; Content Lead confirms expected behaviour.
-3. **Screening:** compare a small candidate set through OpenRouter on the identical cases.
-4. **Shortlist:** repeat finalists and ask Content Lead to review a blind sample.
+3. **Screening:** compare a small candidate set through OpenRouter on identical cases, with equal scenario counts, a fixed provider/configuration per candidate and two repeats in rotated order.
+4. **Shortlist:** repeat only finalists on high-risk scenarios 3–5 times and ask Content Lead to review a blind sample.
 5. **Integration decision:** select a model only if Ask Why is promoted from P1 into a live product feature.
 
 ## Open implementation decisions
@@ -96,4 +95,7 @@ Before the first paid run, Technical/Product Leads should confirm:
 - whether the model returns plain text or a small structured response envelope;
 - the exact fallback wording if the service is unavailable or its answer fails a policy check;
 - the exact normalisation and matching rules for the planned exact-answer guard;
+- the provider order, reasoning configuration and output limit for each candidate;
 - the candidate model list and spending limit.
+
+For the complete real-content protocol, see [Real-content Ask Why Evaluation Protocol](REAL_CONTENT_ASK_WHY_EVALUATION_PROTOCOL.md).
