@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { callOpenRouter, MAX_OUTPUT_TOKENS } from "../src/openrouter.js";
+import { callOpenRouter, callOpenRouterText, MAX_OUTPUT_TOKENS } from "../src/openrouter.js";
 
 const input = {
   apiKey: "test-key",
@@ -43,5 +43,25 @@ describe("OpenRouter request handling", () => {
       attemptCount: 1,
       retryable: false
     });
+  });
+
+  it("returns a text response and completion reason for the synthetic smoke test", async () => {
+    const requests: RequestInit[] = [];
+    const fetchImpl: typeof fetch = async (_request, init) => {
+      requests.push(init ?? {});
+      return new Response(JSON.stringify({
+        id: "generation-text-1",
+        provider: "test-provider",
+        choices: [{ message: { content: "Uzbek response" }, finish_reason: "stop" }],
+        usage: { completion_tokens: 12 }
+      }), { status: 200 });
+    };
+
+    const result = await callOpenRouterText({ ...input, fetchImpl, wait: async () => undefined });
+
+    expect(result).toMatchObject({ rawContent: "Uzbek response", finishReason: "stop", attemptCount: 1 });
+    const body = JSON.parse(String(requests[0].body));
+    expect(body.reasoning).toEqual({ effort: "low", exclude: true });
+    expect(body.response_format).toBeUndefined();
   });
 });

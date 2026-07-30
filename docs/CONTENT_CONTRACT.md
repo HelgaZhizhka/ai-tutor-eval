@@ -19,7 +19,6 @@ The tutor is only as safe and useful as its task content. A task cannot be consi
 | Hint ladder | Defines safe progressive hints, from the smallest nudge to later support. |
 | Common misconceptions | Lets the tutor recognise anticipated incorrect reasoning. |
 | Approved response guidance | Tells the tutor what to do after each known misconception. |
-| Answer-leakage terms | Supports automatic checks that the tutor did not reveal the result too early. |
 | Source and licence status | Confirms that the item is appropriate for use. |
 
 Content Leads can first use [the Markdown task-batch template](../content/CONTENT_LEAD_TASK_BATCH_TEMPLATE.md); the technical team then transfers approved tasks into [the YAML item template](../content/items/ITEM.template.yaml). The evaluation runner validates the YAML structure before it sends any API request.
@@ -54,6 +53,8 @@ For each selected Grade 5 task, the Content Lead confirms:
 5. common misconceptions and appropriate next tutor action;
 6. any important alternative approach to recognise;
 7. `review_status: approved` and `license_status: clear`.
+
+The evaluation's basic direct-answer check uses the existing `canonical_answer`; no separate leakage-term list is required from the Content Lead. Extra answer forms can be added later only if an observed model behaviour makes them useful.
 
 ## Translation rule
 

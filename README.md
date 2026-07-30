@@ -27,6 +27,7 @@ This harness evaluates the AI decision layer only. It does not replace UI tests,
 - The current one-month MVP uses a teacher-approved, rule-based core hint flow. A live LLM is optional P1 functionality for the anchored **Ask Why** feature, not a requirement for the August 8 internal demo.
 - Uzbek (Latin script) is the proposed learner-facing MVP language. The architecture should remain localisation-ready, but Russian and English content must be independently reviewed before it is shown to learners.
 - [Ask Why Evaluation — Phase A](docs/ASK_WHY_EVALUATION.md) contains the prepared scenario plan. It will use approved Uzbek items when they are ready.
+- [Synthetic Uzbek Ask Why Smoke Test](docs/SYNTHETIC_UZBEK_SMOKE_TEST.md) is a separate local-only technical preflight. Its synthetic results are not a production model-selection result.
 - The existing `TutorDecision` runner is retained for a possible future active-tutor mode, where a model evaluates an attempt and selects a next tutoring move. It is not a blocker for the current rule-based hint flow.
 - All API calls are opt-in and require `OPENROUTER_API_KEY`. No real student data may be added.
 

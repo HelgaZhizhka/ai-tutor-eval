@@ -10,4 +10,5 @@ coverage/
 
 # Generated evaluation output.
 results/raw/
+results/synthetic-smoke/
 *.log

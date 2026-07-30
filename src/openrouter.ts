@@ -5,7 +5,7 @@ export const MAX_OUTPUT_TOKENS = 1_200;
 const MAX_REQUEST_ATTEMPTS = 3;
 const RETRYABLE_STATUSES = new Set([408, 429, 500, 502, 503, 504]);
 
-interface OpenRouterUsage {
+export interface OpenRouterUsage {
   prompt_tokens?: number;
   completion_tokens?: number;
   cost?: number;
@@ -14,7 +14,7 @@ interface OpenRouterUsage {
 interface OpenRouterResponse {
   id?: string;
   provider?: string;
-  choices?: Array<{ message?: { content?: string } }>;
+  choices?: Array<{ message?: { content?: string }; finish_reason?: string }>;
   usage?: OpenRouterUsage;
 }
 
@@ -23,6 +23,15 @@ export interface ModelResponse {
   decision: TutorDecision | null;
   providerName?: string;
   generationId?: string;
+  usage: OpenRouterUsage;
+  attemptCount: number;
+}
+
+export interface TextModelResponse {
+  rawContent: string;
+  providerName?: string;
+  generationId?: string;
+  finishReason?: string;
   usage: OpenRouterUsage;
   attemptCount: number;
 }
@@ -115,6 +124,91 @@ export async function callOpenRouter(input: {
           decision,
           providerName: payload.provider,
           generationId: payload.id,
+          usage: payload.usage ?? {},
+          attemptCount
+        };
+      }
+
+      lastError = new OpenRouterRequestError(
+        `OpenRouter request failed (${response.status}): ${responseText}`,
+        attemptCount,
+        RETRYABLE_STATUSES.has(response.status)
+      );
+      if (!RETRYABLE_STATUSES.has(response.status) || attemptCount === MAX_REQUEST_ATTEMPTS) {
+        throw lastError;
+      }
+    } catch (error) {
+      lastError = error;
+      const shouldRetry = error instanceof OpenRouterRequestError ? error.retryable : isTemporaryNetworkError(error);
+      if (!shouldRetry || attemptCount === MAX_REQUEST_ATTEMPTS) {
+        if (error instanceof OpenRouterRequestError) throw error;
+        throw new OpenRouterRequestError(`OpenRouter request failed: ${error instanceof Error ? error.message : String(error)}`, attemptCount, false);
+      }
+    }
+
+    await wait(retryDelayMs(response, attemptCount));
+  }
+
+  throw new OpenRouterRequestError(`OpenRouter request failed: ${lastError instanceof Error ? lastError.message : String(lastError)}`, MAX_REQUEST_ATTEMPTS, false);
+}
+
+/**
+ * A deliberately small text-only call for the synthetic Ask Why smoke test.
+ * It is not used by the active TutorDecision evaluation flow.
+ */
+export async function callOpenRouterText(input: {
+  apiKey: string;
+  model: string;
+  systemPrompt: string;
+  context: Record<string, unknown>;
+  maxOutputTokens?: number;
+  fetchImpl?: typeof fetch;
+  wait?: (milliseconds: number) => Promise<void>;
+}): Promise<TextModelResponse> {
+  const fetchImpl = input.fetchImpl ?? fetch;
+  const wait = input.wait ?? ((milliseconds: number) => new Promise<void>((resolve) => setTimeout(resolve, milliseconds)));
+  let lastError: unknown;
+
+  for (let attemptCount = 1; attemptCount <= MAX_REQUEST_ATTEMPTS; attemptCount += 1) {
+    let response: Response | undefined;
+    try {
+      response = await fetchImpl(OPENROUTER_URL, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${input.apiKey}`,
+          "Content-Type": "application/json",
+          "X-Title": "Olympiad Academy Synthetic Ask Why Smoke Test"
+        },
+        signal: AbortSignal.timeout(30_000),
+        body: JSON.stringify({
+          model: input.model,
+          messages: [
+            { role: "system", content: input.systemPrompt },
+            { role: "user", content: JSON.stringify(input.context) }
+          ],
+          temperature: 0,
+          max_tokens: input.maxOutputTokens ?? 600,
+          reasoning: {
+            effort: "low",
+            exclude: true
+          },
+          provider: {
+            // Synthetic scenarios contain no learner data. Permit OpenRouter to
+            // find a compatible provider, while still preferring no retention.
+            allow_fallbacks: true,
+            data_collection: "deny"
+          }
+        })
+      });
+
+      const responseText = await response.text();
+      if (response.ok) {
+        const payload = JSON.parse(responseText) as OpenRouterResponse;
+        return {
+          rawContent: payload.choices?.[0]?.message?.content ?? "",
+          providerName: payload.provider,
+          generationId: payload.id,
+          finishReason: payload.choices?.[0]?.finish_reason,
           usage: payload.usage ?? {},
           attemptCount
         };

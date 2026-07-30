@@ -64,7 +64,9 @@ export interface MathItem {
   hint_ladder: string[];
   common_mistakes: CommonMistake[];
   accepted_approaches?: AcceptedApproach[];
-  leakage_terms: string[];
+  // Optional additional direct-answer forms. The core guard always checks
+  // canonical_answer, so Content Leads do not need to author these by default.
+  leakage_terms?: string[];
   source_type: "original" | "adapted";
   source_reference?: string;
   license_status: "clear" | "unresolved";

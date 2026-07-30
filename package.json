@@ -9,7 +9,8 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "eval:screening": "tsx src/cli.ts screening",
-    "eval:shortlist": "tsx src/cli.ts shortlist"
+    "eval:shortlist": "tsx src/cli.ts shortlist",
+    "eval:ask-why-smoke": "tsx src/ask-why-smoke.ts"
   },
   "dependencies": {
     "ajv": "^8.17.1",

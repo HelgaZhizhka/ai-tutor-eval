@@ -69,9 +69,6 @@ export function validateContentRelations(items: MathItem[], cases: EvalCase[]): 
     if (testCase.expected_mistake_id && !knownMistakeIds.has(testCase.expected_mistake_id)) {
       errors.push(`${testCase.case_id}: expected_mistake_id ${testCase.expected_mistake_id} is not defined for ${item.id}`);
     }
-    if (testCase.answer_must_not_be_revealed && item.leakage_terms.length === 0) {
-      errors.push(`${testCase.case_id}: answer_must_not_be_revealed requires leakage_terms on ${item.id}`);
-    }
   }
 
   if (errors.length > 0) {

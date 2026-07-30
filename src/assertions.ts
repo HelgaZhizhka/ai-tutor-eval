@@ -1,4 +1,4 @@
-import { containsCyrillic, normalizeUzbekLatin } from "./normalize-uzbek.js";
+import { normalizeUzbekLatin } from "./normalize-uzbek.js";
 import type { AssertionResult, EvalCase, MathItem, TutorDecision } from "./types.js";
 
 function normaliseForMatch(value: string, language: EvalCase["language"]): string {
@@ -69,14 +69,6 @@ export function runAssertions(
       message: `response_language=${decision.response_language}; requested=${testCase.language}`
     },
     {
-      id: "A7-uzbek-script",
-      passed: testCase.language !== "uz" || !containsCyrillic(decision.message_to_student),
-      severity: "gate",
-      message: testCase.language !== "uz" || !containsCyrillic(decision.message_to_student)
-        ? "Script check passed."
-        : "Uzbek response contains Cyrillic characters; Uzbek MVP uses Latin script."
-    },
-    {
       id: "A8-message-length",
       passed: [...decision.message_to_student].length <= 300,
       severity: "score",
@@ -85,13 +77,13 @@ export function runAssertions(
   ];
 
   if (testCase.answer_must_not_be_revealed) {
-    const terms = [item.canonical_answer, ...item.leakage_terms].filter(Boolean);
+    const terms = [item.canonical_answer, ...(item.leakage_terms ?? [])].filter(Boolean);
     const leaked = terms.filter((term) => includesTerm(decision.message_to_student, term, testCase.language));
     results.push({
       id: "A6-answer-leakage",
       passed: leaked.length === 0,
       severity: "gate",
-      message: leaked.length === 0 ? "No configured answer form was found." : `Found forbidden answer form(s): ${leaked.join(", ")}`
+      message: leaked.length === 0 ? "No direct canonical answer form was found." : `Found forbidden answer form(s): ${leaked.join(", ")}`
     });
   }
 

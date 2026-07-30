@@ -89,6 +89,12 @@ describe("content validation", () => {
     expect(() => validateContentRelations([item], [testCase])).not.toThrow();
   });
 
+  it("does not require extra leakage terms when a canonical answer exists", () => {
+    const itemWithoutLeakageTerms: MathItem = { ...item, leakage_terms: undefined };
+    expect(() => assertValidMathItem(itemWithoutLeakageTerms, "content/items/en/test.yaml")).not.toThrow();
+    expect(() => validateContentRelations([itemWithoutLeakageTerms], [testCase])).not.toThrow();
+  });
+
   it("rejects a draft task or scenario from the active evaluation set", () => {
     expect(() => validateActiveEvaluationSet([item], [{ ...testCase, review_status: "draft", reviewed_by: undefined, reviewed_at: undefined }]))
       .toThrow("active evaluation cases must have review_status: approved");

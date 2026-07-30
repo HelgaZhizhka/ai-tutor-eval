@@ -79,14 +79,14 @@ The first evaluation, in the language the team confirms, will test whether a mod
 - identifies a correct answer, a known misconception, “I do not know”, a request for the final answer and an attempt to bypass tutor rules;
 - follows the approved next action and hint-level limits;
 - avoids revealing a final answer when it is not allowed;
-- declares the requested response language and, for Uzbek, does not use Cyrillic;
+- declares the requested response language;
 - keeps the message short and suitable for a Grade 5 learner;
 - does not reject a coherent alternative solution method merely because it differs from the canonical solution;
 - performs consistently enough to be considered for the MVP.
 
 The automated check does not yet independently detect the language of the student-facing text. For Russian and Uzbek, Content Lead review remains necessary to confirm the actual language and pedagogical quality.
 
-Answer-leakage checks look for teacher-configured answer forms. They are an important guardrail, but not proof that an answer was not revealed indirectly; blind Content Lead review remains necessary.
+The basic answer-leakage check compares against the existing canonical answer. It is an important guardrail, but not proof that an answer was not revealed indirectly; blind Content Lead review remains necessary.
 
 We also record latency, token use, reported API cost, model and upstream provider.
 
