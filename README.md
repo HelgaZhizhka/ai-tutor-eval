@@ -28,6 +28,7 @@ This harness evaluates the AI decision layer only. It does not replace UI tests,
 - Uzbek (Latin script) is the proposed learner-facing MVP language. The architecture should remain localisation-ready, but Russian and English content must be independently reviewed before it is shown to learners.
 - [Ask Why Evaluation — Phase A](docs/ASK_WHY_EVALUATION.md) contains the prepared scenario plan. It will use approved Uzbek items when they are ready.
 - [Synthetic Uzbek Ask Why Smoke Test](docs/SYNTHETIC_UZBEK_SMOKE_TEST.md) is a separate local-only technical preflight. Its synthetic results are not a production model-selection result.
+- [Synthetic Uzbek Smoke Test Report — 2026-07-30](docs/SYNTHETIC_UZBEK_SMOKE_TEST_REPORT_2026-07-30.md) records the public summary of the first operational screen; raw API responses remain local.
 - The existing `TutorDecision` runner is retained for a possible future active-tutor mode, where a model evaluates an attempt and selects a next tutoring move. It is not a blocker for the current rule-based hint flow.
 - All API calls are opt-in and require `OPENROUTER_API_KEY`. No real student data may be added.
 
