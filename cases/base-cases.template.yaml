@@ -16,4 +16,6 @@ cases:
     allowed_actions: [ask_to_explain, confirm_and_close]
     max_hint_level: 0
     answer_must_not_be_revealed: false
+    # What a Content Lead expects pedagogically; used for blind human review.
+    expected_behaviour: ""
     reviewer_comment: ""

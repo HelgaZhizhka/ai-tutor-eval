@@ -97,6 +97,7 @@
         },
         "max_hint_level": { "type": "integer", "minimum": 0, "maximum": 3 },
         "answer_must_not_be_revealed": { "type": "boolean" },
+        "expected_behaviour": { "type": "string", "minLength": 1 },
         "reviewer_comment": { "type": "string" }
       },
       "allOf": [

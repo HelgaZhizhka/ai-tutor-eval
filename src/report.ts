@@ -7,15 +7,19 @@ function csvValue(value: string | number | boolean | undefined): string {
   return `"${stringValue.replaceAll('"', '""')}"`;
 }
 
-export async function writeRawResult(result: ModelRunResult): Promise<void> {
-  const outputDirectory = path.join(process.cwd(), "results", "raw");
+export async function writeRawResult(result: ModelRunResult, resultsRoot = path.join(process.cwd(), "results")): Promise<void> {
+  const outputDirectory = path.join(resultsRoot, "raw");
   await mkdir(outputDirectory, { recursive: true });
   const file = path.join(outputDirectory, `runs-${result.timestamp.slice(0, 10)}.jsonl`);
   await appendFile(file, `${JSON.stringify(result)}\n`, "utf8");
 }
 
-export async function writeSummary(results: ModelRunResult[], label: string): Promise<string> {
-  const outputDirectory = path.join(process.cwd(), "results");
+export async function writeSummary(
+  results: ModelRunResult[],
+  label: string,
+  resultsRoot = path.join(process.cwd(), "results")
+): Promise<string> {
+  const outputDirectory = resultsRoot;
   await mkdir(outputDirectory, { recursive: true });
   const file = path.join(outputDirectory, `${label}-summary.csv`);
   const rows = [
@@ -71,7 +75,7 @@ export interface ModelScorecardRow {
   mistakeIdAccuracy: string;
   answerLeakageFailures: number;
   p50LatencyMs: number | undefined;
-  p95LatencyMs: number | undefined;
+  p90LatencyMs: number | undefined;
   totalCostUsd: string;
   providers: string;
 }
@@ -100,19 +104,23 @@ export function buildModelScorecardRows(results: ModelRunResult[]): ModelScoreca
       mistakeIdAccuracy: rateLabel(mistakeMatches),
       answerLeakageFailures: leakageFailures,
       p50LatencyMs: percentile(latencies, 50),
-      p95LatencyMs: percentile(latencies, 95),
+      p90LatencyMs: percentile(latencies, 90),
       totalCostUsd: totalCost.toFixed(6),
       providers
     };
   });
 }
 
-export async function writeModelScorecard(results: ModelRunResult[], label: string): Promise<string> {
-  const outputDirectory = path.join(process.cwd(), "results");
+export async function writeModelScorecard(
+  results: ModelRunResult[],
+  label: string,
+  resultsRoot = path.join(process.cwd(), "results")
+): Promise<string> {
+  const outputDirectory = resultsRoot;
   await mkdir(outputDirectory, { recursive: true });
   const file = path.join(outputDirectory, `${label}-model-scorecard.csv`);
   const rows = [
-    ["model", "prompt_versions", "runs", "completed_runs", "infrastructure_errors", "gate_pass_rate", "assessment_accuracy", "mistake_id_accuracy", "answer_leakage_failures", "p50_latency_ms", "p95_latency_ms", "total_cost_usd", "providers"],
+    ["model", "prompt_versions", "runs", "completed_runs", "infrastructure_errors", "gate_pass_rate", "assessment_accuracy", "mistake_id_accuracy", "answer_leakage_failures", "p50_latency_ms", "p90_latency_ms", "total_cost_usd", "providers"],
     ...buildModelScorecardRows(results).map((row) => {
       return [
         row.model,
@@ -125,7 +133,7 @@ export async function writeModelScorecard(results: ModelRunResult[], label: stri
         row.mistakeIdAccuracy,
         row.answerLeakageFailures,
         row.p50LatencyMs,
-        row.p95LatencyMs,
+        row.p90LatencyMs,
         row.totalCostUsd,
         row.providers
       ];

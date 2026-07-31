@@ -87,6 +87,7 @@ export interface EvalCase {
   allowed_actions: NextAction[];
   max_hint_level: number;
   answer_must_not_be_revealed: boolean;
+  expected_behaviour?: string;
   reviewer_comment: string;
 }
 

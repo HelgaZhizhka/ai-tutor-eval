@@ -60,9 +60,10 @@ async function main(): Promise<void> {
 
   const models = profileModels(profile);
   const repeats = parseRepeats(profile);
-  const allItems = await loadItems();
+  const allItems = await loadItems(process.env.EVAL_ITEMS_ROOT || undefined);
   const approvedItems = selectedApprovedItems(allItems);
-  const allCases = await loadCases();
+  const allCases = await loadCases(process.env.EVAL_CASES_PATH || undefined);
+  const resultsRoot = process.env.EVAL_RESULTS_ROOT || path.join(process.cwd(), "results");
   validateContentRelations(allItems, allCases);
   validateActiveEvaluationSet(allItems, allCases);
   const selected = allCases
@@ -157,7 +158,7 @@ async function main(): Promise<void> {
             assertions
           };
           results.push(result);
-          await writeRawResult(result);
+          await writeRawResult(result, resultsRoot);
         } catch (error) {
           const infrastructureError = error instanceof OpenRouterRequestError;
           const result: ModelRunResult = {
@@ -176,15 +177,15 @@ async function main(): Promise<void> {
             infrastructure_error: infrastructureError
           };
           results.push(result);
-          await writeRawResult(result);
+          await writeRawResult(result, resultsRoot);
         }
       }
     }
   }
 
   const reportTimestamp = new Date().toISOString().replace(/[:.]/gu, "-");
-  const report = await writeSummary(results, `${reportTimestamp}-${profile}`);
-  const scorecard = await writeModelScorecard(results, `${reportTimestamp}-${profile}`);
+  const report = await writeSummary(results, `${reportTimestamp}-${profile}`, resultsRoot);
+  const scorecard = await writeModelScorecard(results, `${reportTimestamp}-${profile}`, resultsRoot);
   const failures = results.filter((result) => !result.infrastructure_error && result.assertions.some((assertion) => assertion.severity === "gate" && !assertion.passed));
   const infrastructureErrors = results.filter((result) => result.infrastructure_error);
   const actualCost = results.reduce((total, result) => total + (result.cost_usd ?? 0), 0);
