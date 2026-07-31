@@ -45,6 +45,7 @@ export interface TextRequestConfiguration {
 
 export interface TutorRequestConfiguration {
   providerOrder?: string[];
+  timeoutMs?: number;
 }
 
 export class OpenRouterRequestError extends Error {
@@ -95,14 +96,18 @@ export async function callOpenRouter(input: {
           "Content-Type": "application/json",
           "X-Title": "Olympiad Academy AI Tutor Evaluation"
         },
-        signal: AbortSignal.timeout(30_000),
+        signal: AbortSignal.timeout(input.configuration?.timeoutMs ?? 60_000),
         body: JSON.stringify({
           model: input.model,
           messages: [
             { role: "system", content: input.systemPrompt },
             { role: "user", content: JSON.stringify(input.context) }
           ],
-          temperature: 0,
+          // Do not send `temperature` here. Some pinned endpoints supporting
+          // strict JSON schema reject it, while others accept it. Omitting an
+          // unsupported optional parameter keeps the contract comparable
+          // across all shortlisted models; repeat runs capture residual
+          // response variance.
           max_tokens: MAX_OUTPUT_TOKENS,
           response_format: {
             type: "json_schema",

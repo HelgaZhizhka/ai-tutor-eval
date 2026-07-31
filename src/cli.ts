@@ -83,6 +83,30 @@ function rotateModels(models: string[], offset: number): string[] {
   return [...models.slice(start), ...models.slice(0, start)];
 }
 
+function parseCaseRange(totalCases: number): { offset: number; limit: number } {
+  const offsetValue = getArgument("--case-offset") ?? "0";
+  const offset = Number(offsetValue);
+  if (!Number.isInteger(offset) || offset < 0 || offset >= totalCases) {
+    throw new Error(`--case-offset must be an integer from 0 to ${Math.max(0, totalCases - 1)}.`);
+  }
+
+  const limitValue = getArgument("--case-limit");
+  const limit = limitValue === undefined ? totalCases - offset : Number(limitValue);
+  if (!Number.isInteger(limit) || limit < 1 || offset + limit > totalCases) {
+    throw new Error(`--case-limit must select at least one case and remain within the ${totalCases}-case active set.`);
+  }
+  return { offset, limit };
+}
+
+function parseRequestTimeoutMs(): number {
+  const raw = process.env.EVAL_REQUEST_TIMEOUT_MS ?? "60000";
+  const timeoutMs = Number(raw);
+  if (!Number.isInteger(timeoutMs) || timeoutMs < 10_000 || timeoutMs > 120_000) {
+    throw new Error("EVAL_REQUEST_TIMEOUT_MS must be an integer between 10000 and 120000.");
+  }
+  return timeoutMs;
+}
+
 async function main(): Promise<void> {
   const profile = process.argv[2];
   const dryRun = process.argv.includes("--dry-run");
@@ -91,24 +115,28 @@ async function main(): Promise<void> {
   const models = profileModels(profile);
   const repeats = parseRepeats(profile);
   const providerOrders = parseProviderOrders(models);
+  const requestTimeoutMs = parseRequestTimeoutMs();
   const allItems = await loadItems(process.env.EVAL_ITEMS_ROOT || undefined);
   const approvedItems = selectedApprovedItems(allItems);
   const allCases = await loadCases(process.env.EVAL_CASES_PATH || undefined);
   const resultsRoot = process.env.EVAL_RESULTS_ROOT || path.join(process.cwd(), "results");
   validateContentRelations(allItems, allCases);
   validateActiveEvaluationSet(allItems, allCases);
-  const selected = allCases
+  const eligibleCases = allCases
     .filter((testCase) => approvedItems.some((item) => item.id === testCase.problem_id && item.language === testCase.language));
 
-  if (approvedItems.length === 0 || selected.length === 0) {
+  if (approvedItems.length === 0 || eligibleCases.length === 0) {
     throw new Error("No approved evaluation set is available yet. Add at least one teacher-approved item under content/items/ and its matching teacher-reviewed case in cases/base-cases.yaml.");
   }
 
-  if (selected.length !== allCases.length) {
-    throw new Error(`Active evaluation set is incomplete: ${selected.length} of ${allCases.length} scenarios were selected.`);
+  if (eligibleCases.length !== allCases.length) {
+    throw new Error(`Active evaluation set is incomplete: ${eligibleCases.length} of ${allCases.length} scenarios were selected.`);
   }
 
-  console.log(`Evaluation set: approved_tasks=${approvedItems.length}; active_scenarios=${allCases.length}; selected_scenarios=${selected.length}`);
+  const caseRange = parseCaseRange(eligibleCases.length);
+  const selected = eligibleCases.slice(caseRange.offset, caseRange.offset + caseRange.limit);
+
+  console.log(`Evaluation set: approved_tasks=${approvedItems.length}; active_scenarios=${allCases.length}; selected_scenarios=${selected.length}; case_offset=${caseRange.offset}`);
 
   const calls = models.length * selected.length * repeats;
   if (providerOrders.size === 0) {
@@ -133,7 +161,7 @@ async function main(): Promise<void> {
     available_in_catalogue: pricing.has(model),
     estimated_cost_usd: estimateCostUsd(pricing.get(model)!, selected.length * repeats, 2_000, MAX_OUTPUT_TOKENS).toFixed(4)
   })));
-  console.log(`Profile=${profile}; repeats=${repeats}; calls=${calls}; estimated cost=$${estimate.toFixed(4)} using 2,000 input and ${MAX_OUTPUT_TOKENS} output tokens per call; local estimate guard=$${limit.toFixed(2)}`);
+  console.log(`Profile=${profile}; repeats=${repeats}; calls=${calls}; request_timeout_ms=${requestTimeoutMs}; estimated cost=$${estimate.toFixed(4)} using 2,000 input and ${MAX_OUTPUT_TOKENS} output tokens per call; local estimate guard=$${limit.toFixed(2)}`);
 
   if (estimate > limit) {
     throw new Error("Estimated batch cost exceeds EVAL_MAX_BATCH_COST_USD. Increase the guard deliberately or reduce the batch.");
@@ -164,7 +192,7 @@ async function main(): Promise<void> {
             systemPrompt,
             context: buildTutorContext(item, testCase),
             responseSchema,
-            configuration: { providerOrder: providerOrders.get(model) }
+            configuration: { providerOrder: providerOrders.get(model), timeoutMs: requestTimeoutMs }
           });
           const validation = validateDecision(response.decision);
           const assertions = runAssertions(
@@ -219,8 +247,9 @@ async function main(): Promise<void> {
   }
 
   const reportTimestamp = new Date().toISOString().replace(/[:.]/gu, "-");
-  const report = await writeSummary(results, `${reportTimestamp}-${profile}`, resultsRoot);
-  const scorecard = await writeModelScorecard(results, `${reportTimestamp}-${profile}`, resultsRoot);
+  const caseLabel = selected.length === eligibleCases.length ? "all-cases" : `cases-${caseRange.offset + 1}-${caseRange.offset + selected.length}`;
+  const report = await writeSummary(results, `${reportTimestamp}-${profile}-${caseLabel}`, resultsRoot);
+  const scorecard = await writeModelScorecard(results, `${reportTimestamp}-${profile}-${caseLabel}`, resultsRoot);
   const failures = results.filter((result) => !result.infrastructure_error && result.assertions.some((assertion) => assertion.severity === "gate" && !assertion.passed));
   const infrastructureErrors = results.filter((result) => result.infrastructure_error);
   const actualCost = results.reduce((total, result) => total + (result.cost_usd ?? 0), 0);

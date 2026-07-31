@@ -43,13 +43,10 @@
     },
     "hint_level": {
       "type": "integer",
-      "minimum": 0,
-      "maximum": 3
+      "enum": [0, 1, 2, 3]
     },
     "message_to_student": {
-      "type": "string",
-      "minLength": 1,
-      "maxLength": 300
+      "type": "string"
     },
     "response_language": {
       "type": "string",

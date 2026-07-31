@@ -119,4 +119,9 @@ describe("evaluation assertions", () => {
     expect(assertions.find((assertion) => assertion.id === "A7-uzbek-script")?.passed).toBe(false);
   });
 
+  it("keeps the hint level constrained without numeric minimum or maximum schema keywords", () => {
+    expect(validateDecision({ ...validDecision, hint_level: 3 }).valid).toBe(true);
+    expect(validateDecision({ ...validDecision, hint_level: 4 }).valid).toBe(false);
+  });
+
 });

@@ -34,6 +34,7 @@ describe("OpenRouter request handling", () => {
     expect(waits).toEqual([0]);
     const body = JSON.parse(String(requests[0].body));
     expect(body.max_tokens).toBe(MAX_OUTPUT_TOKENS);
+    expect(body.temperature).toBeUndefined();
   });
 
   it("does not retry an invalid 400 request", async () => {
@@ -69,6 +70,26 @@ describe("OpenRouter request handling", () => {
       require_parameters: true,
       data_collection: "deny"
     });
+  });
+
+  it("uses the configured structured-call timeout", async () => {
+    let timedOutAfter: number | undefined;
+    const originalTimeout = AbortSignal.timeout;
+    AbortSignal.timeout = ((milliseconds: number) => {
+      timedOutAfter = milliseconds;
+      return originalTimeout(milliseconds);
+    }) as typeof AbortSignal.timeout;
+
+    try {
+      const fetchImpl: typeof fetch = async () => new Response(JSON.stringify({
+        choices: [{ message: { content: JSON.stringify({}) } }],
+        usage: {}
+      }), { status: 200 });
+      await callOpenRouter({ ...input, configuration: { timeoutMs: 45_000 }, fetchImpl, wait: async () => undefined });
+      expect(timedOutAfter).toBe(45_000);
+    } finally {
+      AbortSignal.timeout = originalTimeout;
+    }
   });
 
   it("returns a text response and completion reason for the synthetic smoke test", async () => {
