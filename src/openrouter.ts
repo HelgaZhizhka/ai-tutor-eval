@@ -43,6 +43,10 @@ export interface TextRequestConfiguration {
   providerOrder?: string[];
 }
 
+export interface TutorRequestConfiguration {
+  providerOrder?: string[];
+}
+
 export class OpenRouterRequestError extends Error {
   constructor(
     message: string,
@@ -73,6 +77,7 @@ export async function callOpenRouter(input: {
   systemPrompt: string;
   context: Record<string, unknown>;
   responseSchema: object;
+  configuration?: TutorRequestConfiguration;
   fetchImpl?: typeof fetch;
   wait?: (milliseconds: number) => Promise<void>;
 }): Promise<ModelResponse> {
@@ -108,6 +113,7 @@ export async function callOpenRouter(input: {
             }
           },
           provider: {
+            ...(input.configuration?.providerOrder ? { order: input.configuration.providerOrder } : {}),
             allow_fallbacks: false,
             require_parameters: true,
             data_collection: "deny"

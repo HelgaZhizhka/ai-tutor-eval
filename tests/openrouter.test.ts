@@ -45,6 +45,32 @@ describe("OpenRouter request handling", () => {
     });
   });
 
+  it("pins the requested provider order for the structured tutor call", async () => {
+    const requests: RequestInit[] = [];
+    const fetchImpl: typeof fetch = async (_request, init) => {
+      requests.push(init ?? {});
+      return new Response(JSON.stringify({
+        choices: [{ message: { content: JSON.stringify({}) } }],
+        usage: {}
+      }), { status: 200 });
+    };
+
+    await callOpenRouter({
+      ...input,
+      configuration: { providerOrder: ["test-provider"] },
+      fetchImpl,
+      wait: async () => undefined
+    });
+
+    const body = JSON.parse(String(requests[0].body));
+    expect(body.provider).toEqual({
+      order: ["test-provider"],
+      allow_fallbacks: false,
+      require_parameters: true,
+      data_collection: "deny"
+    });
+  });
+
   it("returns a text response and completion reason for the synthetic smoke test", async () => {
     const requests: RequestInit[] = [];
     const fetchImpl: typeof fetch = async (_request, init) => {

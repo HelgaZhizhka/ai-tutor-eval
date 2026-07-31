@@ -53,6 +53,36 @@ function parseRepeats(profile: string): number {
   return repeats;
 }
 
+function parseProviderOrders(models: string[]): Map<string, string[]> {
+  const raw = process.env.EVAL_PROVIDER_ORDERS_JSON;
+  if (!raw) return new Map();
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    throw new Error("EVAL_PROVIDER_ORDERS_JSON must be valid JSON, for example {\"model-id\":[\"provider-name\"]}.");
+  }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new Error("EVAL_PROVIDER_ORDERS_JSON must be an object mapping each model ID to a non-empty provider list.");
+  }
+
+  const orders = new Map<string, string[]>();
+  for (const model of models) {
+    const order = (parsed as Record<string, unknown>)[model];
+    if (!Array.isArray(order) || order.length === 0 || order.some((provider) => typeof provider !== "string" || provider.length === 0)) {
+      throw new Error(`EVAL_PROVIDER_ORDERS_JSON is missing a non-empty provider order for ${model}.`);
+    }
+    orders.set(model, order as string[]);
+  }
+  return orders;
+}
+
+function rotateModels(models: string[], offset: number): string[] {
+  const start = offset % models.length;
+  return [...models.slice(start), ...models.slice(0, start)];
+}
+
 async function main(): Promise<void> {
   const profile = process.argv[2];
   const dryRun = process.argv.includes("--dry-run");
@@ -60,6 +90,7 @@ async function main(): Promise<void> {
 
   const models = profileModels(profile);
   const repeats = parseRepeats(profile);
+  const providerOrders = parseProviderOrders(models);
   const allItems = await loadItems(process.env.EVAL_ITEMS_ROOT || undefined);
   const approvedItems = selectedApprovedItems(allItems);
   const allCases = await loadCases(process.env.EVAL_CASES_PATH || undefined);
@@ -80,6 +111,9 @@ async function main(): Promise<void> {
   console.log(`Evaluation set: approved_tasks=${approvedItems.length}; active_scenarios=${allCases.length}; selected_scenarios=${selected.length}`);
 
   const calls = models.length * selected.length * repeats;
+  if (providerOrders.size === 0) {
+    console.warn("No EVAL_PROVIDER_ORDERS_JSON supplied: provider names will be recorded, but latency is a discovery measurement, not a production-like comparison.");
+  }
   const pricing = await fetchModelPricing(models);
   const modelsMissingPricing = models.filter((model) => {
     const modelPricing = pricing.get(model);
@@ -116,9 +150,9 @@ async function main(): Promise<void> {
   const itemsById = new Map(approvedItems.map((item) => [item.id, item]));
   const results: ModelRunResult[] = [];
 
-  for (const model of models) {
-    for (let repeatIndex = 1; repeatIndex <= repeats; repeatIndex += 1) {
-      for (const testCase of selected) {
+  for (let repeatIndex = 1; repeatIndex <= repeats; repeatIndex += 1) {
+    for (const [caseIndex, testCase] of selected.entries()) {
+      for (const model of rotateModels(models, caseIndex + repeatIndex - 1)) {
         const item = itemsById.get(testCase.problem_id);
         if (!item) continue;
         const startedAt = performance.now();
@@ -129,7 +163,8 @@ async function main(): Promise<void> {
             model,
             systemPrompt,
             context: buildTutorContext(item, testCase),
-            responseSchema
+            responseSchema,
+            configuration: { providerOrder: providerOrders.get(model) }
           });
           const validation = validateDecision(response.decision);
           const assertions = runAssertions(
