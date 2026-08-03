@@ -71,7 +71,7 @@ briefly back to that task.
 
 ## Backend contract
 
-`POST /api/attempts/:attemptId/ask-why/messages`
+`POST /attempts/:attemptId/ask-why`
 
 V1 request:
 
@@ -93,8 +93,8 @@ V1 successful response:
 
 The client sends only the learner message, the index of a visible solution step
 and the attempt ID in the path. It never sends a model ID, system prompt, task
-text, answer, walkthrough, access state or API key. The endpoint name is
-future-compatible with a bounded chat, but V1 has no conversation history.
+text, answer, walkthrough, access state or API key. V1 has no conversation
+history.
 
 The backend must:
 
