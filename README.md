@@ -8,7 +8,7 @@ We test models only on teacher-reviewed mathematics tasks and learner scenarios.
 
 | Evaluation | What the AI does | Status |
 | --- | --- | --- |
-| **Ask Why** | After a learner completes a task or sees the full walkthrough, the learner may ask a short question about that task. | Completed for Demo Day. GPT-5.6 Terra is the primary model; Claude Sonnet 5 is the fallback. |
+| **Ask Why** | After a learner completes a task or sees the full walkthrough, the learner may ask a short question about that task. | Completed for Demo Day. GPT-5.6 Terra is the selected automatic model; failures show a neutral retry message. |
 | **Ask Tutor** | During an active attempt, after Hint 1 and Hint 2, the AI gives one small next step without solving the task. | Not evaluated yet. This is a separate future test. |
 
 The two modes must not be mixed: they appear at different moments in the learning flow and require different test scenarios.
@@ -36,6 +36,7 @@ Private task texts, scenarios, raw model answers and reviewer notes are delibera
 ## Documentation
 
 - [Ask Why evaluation method](docs/ASK_WHY_EVALUATION.md)
+- [Ask Why MVP implementation plan](docs/ASK_WHY_MVP_IMPLEMENTATION_PLAN.md)
 - [Ask Tutor evaluation plan](docs/ASK_TUTOR_EVALUATION.md)
 - [Content requirements for an evaluation](docs/CONTENT_CONTRACT.md)
 

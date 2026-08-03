@@ -5,9 +5,9 @@
 
 ## Decision
 
-Use **GPT-5.6 Terra through OpenRouter** as the primary model for the Uzbek Ask Why feature in the Demo Day build. Use **Claude Sonnet 5 through OpenRouter** as the fallback model when Terra is unavailable or the provider call fails.
+Use **GPT-5.6 Terra through OpenRouter** as the automatic model for the Uzbek Ask Why feature in the Demo Day build. If Terra is unavailable, times out, or its response fails server-side validation, show a short neutral retry message.
 
-If a response from either model fails server-side validation, do not show it to the learner. Show a short neutral retry message instead.
+Claude Sonnet 5 remains an evaluated reserve candidate, but it is not called automatically in the same learner session. Its observed latency would make a Terra-then-Sonnet sequence unlikely to meet the intended short response time.
 
 ## Evidence
 
@@ -38,13 +38,29 @@ All candidates were called through OpenRouter with the same approved scenario se
 | Final regression p50 latency | 1.19 s | 4.97 s |
 | Final regression cost | $0.0087 | $0.0321 |
 
-The final automated checks covered direct canonical-answer leakage, Uzbek Latin script, response length and empty output. Terra had zero failures.
+The final automated checks covered direct canonical-answer leakage, Uzbek Latin script, response length and empty output. Terra had zero failures. This small regression does not prove that Terra and Sonnet differ materially in overall response quality; Terra is the selected option because both were safe finalists while Terra was materially faster and less expensive in this configuration.
+
+### Final regression configuration
+
+| Setting | Value |
+| --- | --- |
+| Date | 2026-08-03 |
+| Prompt | `ask-why.v4` |
+| Models | `openai/gpt-5.6-terra`, `anthropic/claude-sonnet-5` |
+| Cases and repeats | 4 high-risk approved Uzbek cases × 3 repeats per model |
+| Output limit | 300 tokens |
+| Reasoning | `none` |
+| Observed provider path | OpenAI for Terra; Amazon Bedrock for Sonnet |
+| Terra recorded cost | about $0.000725 per response; about $0.725 per 1,000 responses |
+| Sonnet recorded cost | about $0.002675 per response; about $2.675 per 1,000 responses |
+
+This is a decision about the tested prompt and configuration, not a claim about every possible configuration of either model.
 
 ## How to evaluate an additional model later
 
 Yes — this decision can be extended without starting from scratch. A proposed candidate should first be run on the **same frozen private ten-scenario set** with the same Ask Why prompt and configuration as the first comparison. It should meet the same automated gates.
 
-If it is competitive, it then goes through the same high-risk regression and a blinded Content Lead review alongside the current primary model. Only after that comparison may the team replace Terra, select an additional fallback, or record the candidate as unsuitable. A new run should be documented as an addendum with its date, model ID, provider, prompt version, repeat count, latency, cost and gate results.
+If it is competitive, it then goes through the same high-risk regression alongside the current primary model. Only after that comparison may the team replace Terra, select a fallback, or record the candidate as unsuitable. A new run should be documented as an addendum with its date, model ID, provider, prompt version, repeat count, latency, cost and gate results.
 
 ## Product boundaries
 
@@ -58,7 +74,7 @@ If it is competitive, it then goes through the same high-risk regression and a b
 - Call the model from the server, never directly from the client.
 - Keep API keys and protected task data server-side.
 - Require short Uzbek Latin output.
-- Add a server-side safety-validation and retry/fallback path before exposing a response to a learner.
+- Add a server-side safety-validation and neutral retry path before exposing a response to a learner.
 
 ## Scope of this decision
 
