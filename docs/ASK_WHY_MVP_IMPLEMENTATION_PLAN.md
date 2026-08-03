@@ -91,6 +91,21 @@ V1 successful response:
 }
 ```
 
+V1 expected-error response:
+
+```json
+{
+  "error": {
+    "code": "ASK_WHY_RETRY"
+  },
+  "remaining_questions": 2
+}
+```
+
+The supported error codes are `ASK_WHY_NOT_AVAILABLE`,
+`ASK_WHY_LIMIT_REACHED` and `ASK_WHY_RETRY`. The frontend maps these codes to
+localised learner-facing text; the backend does not own UI copy.
+
 The client sends only the learner message, the index of a visible solution step
 and the attempt ID in the path. It never sends a model ID, system prompt, task
 text, answer, walkthrough, access state or API key. V1 has no conversation
@@ -100,7 +115,7 @@ The backend must:
 
 1. Verify authentication and ownership of the attempt.
 2. Check that the answer is correct or that Full Walkthrough is opened.
-3. Verify that `step_index` refers to a solution step already visible to the learner.
+3. Verify that `step_index` refers to a solution step already visible to the learner. After a correct answer, the complete reviewed `solution_steps` block is shown, so all of its step indices are eligible; the same is true after Full Walkthrough.
 4. Load only the current approved task, selected visible solution step and learner question.
 5. Build the versioned prompt on the server and call Terra through OpenRouter.
 6. Validate the reply before returning it.
@@ -122,6 +137,7 @@ At minimum, validate before display:
 - non-empty output;
 - Uzbek Latin rather than Cyrillic;
 - configured sentence and length limit;
+- no more than one question in the reply;
 - response did not end because of the output-token limit;
 - successful model/API response.
 
@@ -140,6 +156,8 @@ Ask Tutor mode.
 - loading state and disabled duplicate send while a request is active;
 - concise response view;
 - retry state that preserves the learner's task state;
+- limit-reached state and localised message based on `ASK_WHY_LIMIT_REACHED`;
+- localised retry/error state based on the backend `error.code`;
 - unavailable state before completion;
 - localisation-ready text keys.
 
@@ -157,7 +175,7 @@ content, prompt, or a client-controlled access flag.
 | --- | ---: |
 | Learner question length | 500 characters |
 | Concurrent request per attempt | 1 |
-| Ask Why replies shown per completed task | 3 |
+| Ask Why replies shown per attempt | 3 |
 | Output-token limit per reply | 120 |
 | AI request timeout | 4 seconds |
 
@@ -165,8 +183,9 @@ The backend team should set the per-user rate limit and monthly cost guard.
 
 ## Technical telemetry
 
-Record minimal technical events without logging API keys or raw learner
-messages in error logs or storing a persistent Ask Why chat transcript in V1:
+V1 does not store raw learner questions or model replies as a persistent Ask
+Why transcript. Record only the following minimal technical events, and never
+log API keys or raw learner messages in error logs:
 
 - Ask Why became available after correct answer or Full Walkthrough;
 - request started, completed or failed;
@@ -186,17 +205,20 @@ messages in error logs or storing a persistent Ask Why chat transcript in V1:
 5. UI covers loading, temporary failure and retry without losing task progress.
 6. API keys, prompts and hidden task data do not reach the client.
 7. Technical events record shown replies, retry reasons, latency, usage and cost.
-8. V1 stores no persistent Ask Why conversation history.
-9. A focused integration regression passes on the actual backend path before the demo build is enabled.
+8. The UI handles `ASK_WHY_LIMIT_REACHED` and `ASK_WHY_RETRY` through localised text keys.
+9. V1 stores no persistent Ask Why conversation history or raw question/reply transcript.
+10. A focused integration regression passes on the actual backend path before the demo build is enabled.
 
 ## Pre-release regression
 
 Run Terra with the final implementation prompt and actual backend path on a
 small private set covering both entry states, a normal “why” question about a
-selected step, a misconception, off-topic input, rule bypass, Uzbek Cyrillic
-input with Uzbek Latin output, and a new independent question about another
-visible step. Test each case two or three times. Also simulate timeout,
-provider failure and invalid output to confirm the neutral retry state.
+selected step, a misconception, “I do not understand”, off-topic input, rule
+bypass, Uzbek Cyrillic input with Uzbek Latin output, and a new independent
+question about another visible step. Test each case two or three times. Check
+that the reply contains no more than one question. Also simulate timeout,
+provider failure and invalid output to confirm the neutral retry state, and
+record p50, p90 and maximum end-to-end latency on the actual backend path.
 
 Any material change to model, provider, prompt, language, output limit or
 safety rules requires a focused repeat of this regression before release.
