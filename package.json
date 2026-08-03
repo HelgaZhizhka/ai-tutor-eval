@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit",
     "eval:screening": "tsx src/cli.ts screening",
     "eval:shortlist": "tsx src/cli.ts shortlist",
-    "eval:ask-why-smoke": "tsx src/ask-why-smoke.ts"
+    "eval:ask-why-regression": "tsx src/ask-why-regression.ts"
   },
   "dependencies": {
     "ajv": "^8.17.1",

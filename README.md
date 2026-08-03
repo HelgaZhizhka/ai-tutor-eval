@@ -1,58 +1,51 @@
-# AI Tutor Evaluation Harness
+# Olympiad Academy — AI Model Evaluation
 
-This repository evaluates candidate LLMs for Olympiad Academy's constrained Grade 5 mathematics tutor. It does **not** build the product tutor.
+This repository helps Olympiad Academy test AI models before using them in a learner-facing feature. It is an **evaluation project**, not the student application.
 
-For a non-technical team-meeting overview, see [TEAM_README.md](TEAM_README.md).
-For the shared MVP product and architecture decisions, start with the [Olympiad Academy MVP Wiki](docs/README.md).
+We test models only on teacher-reviewed mathematics tasks and learner scenarios. The goal is not to find the “smartest” model in general, but to check whether a model is safe, useful and clear for a Grade 5 learner in Uzbek Latin.
 
-## Purpose and reuse
+## Two separate evaluations
 
-This is a reusable evaluation and regression harness for the AI Tutor decision layer. It helps the team make evidence-based changes instead of relying on a model's public benchmark score or an individual chat impression.
+| Evaluation | What the AI does | Status |
+| --- | --- | --- |
+| **AI Ask Why** | After a learner completes a task or sees the full walkthrough, the learner may ask a short question about that task. | Completed for Demo Day. GPT-5.6 Terra is the primary model; Claude Sonnet 5 is the fallback. |
+| **AI Tutor / Ask Tutor** | During an active attempt, after Hint 1 and Hint 2, the AI gives one small next step without solving the task. | Not evaluated yet. This is a separate future test. |
 
-The immediate prepared use is to compare candidate models for the optional Ask Why feature on the same teacher-approved Uzbek scenarios. The retained active-tutor harness can later be used whenever a material AI behaviour changes, including:
+The two modes must not be mixed: they appear at different moments in the learning flow and require different test scenarios.
 
-- a change of model, model provider or provider configuration;
-- a new tutor prompt version;
-- a change to the structured response schema or tutor-policy rules;
-- a new hint ladder, important misconception or answer-leakage rule;
-- a new supported language;
-- a new product scenario, such as a longer tutoring conversation.
+## How evaluation works
 
-After the first approved task set and its scenarios are tested, preserve them as `golden-v1`. Do not silently edit that baseline: create a new version when the product needs additional coverage. This makes it possible to compare a later model or prompt with the same evidence.
+```text
+Teacher-reviewed task + learner scenario
+                ↓
+Same prompt and scenario for each candidate model
+                ↓
+Automatic safety checks + blind Content Lead review
+                ↓
+Evidence-based model decision
+```
 
-This harness evaluates the AI decision layer only. It does not replace UI tests, product integration tests, deterministic mathematics checks or supervised pilot testing with real learners.
+We check that a model does not reveal a protected answer, follows the required language and response limits, responds appropriately to common learner situations, and is clear for Grade 5.
 
-## Current scope
+## Current result: AI Ask Why
 
-- The current one-month MVP uses a teacher-approved, rule-based core hint flow. A live LLM is optional P1 functionality for the anchored **Ask Why** feature, not a requirement for the August 8 internal demo.
-- Uzbek (Latin script) is the proposed learner-facing MVP language. The architecture should remain localisation-ready, but Russian and English content must be independently reviewed before it is shown to learners.
-- [Ask Why Evaluation — Phase A](docs/ASK_WHY_EVALUATION.md) contains the prepared scenario plan. It will use approved Uzbek items when they are ready.
-- [Real-content Ask Why Evaluation Protocol](docs/REAL_CONTENT_ASK_WHY_EVALUATION_PROTOCOL.md) defines the controlled comparison to run once approved Uzbek tasks are available.
-- [Synthetic Uzbek Ask Why Smoke Test](docs/SYNTHETIC_UZBEK_SMOKE_TEST.md) is a separate local-only technical preflight. Its synthetic results are not a production model-selection result.
-- [Synthetic Uzbek Smoke Test Report — 2026-07-30](docs/SYNTHETIC_UZBEK_SMOKE_TEST_REPORT_2026-07-30.md) records the public summary of the first operational screen; raw API responses remain local.
-- The existing `TutorDecision` runner is retained for a possible future active-tutor mode, where a model evaluates an attempt and selects a next tutoring move. It is not a blocker for the current rule-based hint flow.
-- All API calls are opt-in and require `OPENROUTER_API_KEY`. No real student data may be added.
+The Demo Day decision and the tested models are documented in [Ask Why Model Decision — 2026-08-03](docs/ASK_WHY_MODEL_DECISION_2026-08-03.md).
 
-## Safety rules
+Private task texts, scenarios, raw model answers and reviewer notes are deliberately kept outside this public repository.
 
-1. Keep all API keys in local environment variables or an ignored `.env` file.
-2. Never treat a draft item or AI translation as teacher validation.
-3. Validate every task and scenario YAML file before any API call; unknown fields, misspelled actions, invalid references and an active case linked to a draft or unlicensed item stop the run.
-4. Preserve raw model responses locally in `results/raw/`; they are intentionally ignored by Git. When real teacher-provided content is not suitable for a public repository, set `EVAL_ITEMS_ROOT`, `EVAL_CASES_PATH` and `EVAL_RESULTS_ROOT` to a private local directory. Do not place that content in this repository.
-5. Before a paid batch, inspect the cost estimate and use the configured local estimate guard. The estimate assumes 2,000 input tokens and the same 1,200-token output limit sent to each model; it is not a provider-side spending cap.
-6. Retry only temporary API failures. A request that still fails is reported as an infrastructure error, not as evidence that the model failed the tutoring task.
+## Documentation
 
-## Why this pilot uses a custom runner
+- [AI Ask Why evaluation method](docs/ASK_WHY_EVALUATION.md)
+- [AI Tutor / Ask Tutor MVP technical specification](docs/AI_TUTOR_MVP.md)
+- [AI Tutor / Ask Tutor evaluation plan](docs/ASK_TUTOR_EVALUATION.md)
+- [Content requirements for an evaluation](docs/CONTENT_CONTRACT.md)
 
-We intentionally use a small TypeScript runner rather than Promptfoo for the pilot. It gives direct control over the strict tutor JSON contract, project-specific checks such as hint limits and answer leakage, OpenRouter cost controls, upstream-provider logging and Uzbek text normalization. We can revisit Promptfoo later if the evaluation suite grows into frequent large-scale regression testing.
-
-## Commands
+## Local checks
 
 ```bash
 npm install
 npm run typecheck
 npm test
-npm run eval:screening -- --dry-run
 ```
 
-The last command previews the initial comparison and will refuse to run until at least one teacher-approved item and its matching, teacher-reviewed scenario are present.
+API runs require a local `OPENROUTER_API_KEY` and private content paths. See [.env.example](.env.example). Do not commit keys, real learner data or raw model responses.

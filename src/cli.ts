@@ -1,5 +1,4 @@
 import "dotenv/config";
-import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { runAssertions } from "./assertions.js";
 import { buildTutorContext, loadTutorPrompt, TUTOR_PROMPT_VERSION } from "./build-request.js";
@@ -107,6 +106,54 @@ function parseRequestTimeoutMs(): number {
   return timeoutMs;
 }
 
+function parseReasoningEfforts(models: string[]): Map<string, "none" | "minimal" | "low"> {
+  const raw = process.env.EVAL_REASONING_EFFORTS_JSON;
+  if (!raw) return new Map();
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    throw new Error("EVAL_REASONING_EFFORTS_JSON must be valid JSON.");
+  }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new Error("EVAL_REASONING_EFFORTS_JSON must map model IDs to none, minimal, or low.");
+  }
+  const efforts = new Map<string, "none" | "minimal" | "low">();
+  for (const model of models) {
+    const effort = (parsed as Record<string, unknown>)[model];
+    if (effort === undefined) continue;
+    if (effort !== "none" && effort !== "minimal" && effort !== "low") {
+      throw new Error(`EVAL_REASONING_EFFORTS_JSON has an invalid effort for ${model}.`);
+    }
+    efforts.set(model, effort);
+  }
+  return efforts;
+}
+
+function parseOutputTokenLimits(models: string[]): Map<string, number> {
+  const raw = process.env.EVAL_MAX_OUTPUT_TOKENS_BY_MODEL_JSON;
+  if (!raw) return new Map();
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    throw new Error("EVAL_MAX_OUTPUT_TOKENS_BY_MODEL_JSON must be valid JSON.");
+  }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new Error("EVAL_MAX_OUTPUT_TOKENS_BY_MODEL_JSON must map model IDs to integer limits.");
+  }
+  const limits = new Map<string, number>();
+  for (const model of models) {
+    const limit = (parsed as Record<string, unknown>)[model];
+    if (limit === undefined) continue;
+    if (!Number.isInteger(limit) || (limit as number) < 300 || (limit as number) > 4_000) {
+      throw new Error(`EVAL_MAX_OUTPUT_TOKENS_BY_MODEL_JSON has an invalid limit for ${model}.`);
+    }
+    limits.set(model, limit as number);
+  }
+  return limits;
+}
+
 async function main(): Promise<void> {
   const profile = process.argv[2];
   const dryRun = process.argv.includes("--dry-run");
@@ -115,6 +162,8 @@ async function main(): Promise<void> {
   const models = profileModels(profile);
   const repeats = parseRepeats(profile);
   const providerOrders = parseProviderOrders(models);
+  const reasoningEfforts = parseReasoningEfforts(models);
+  const outputTokenLimits = parseOutputTokenLimits(models);
   const requestTimeoutMs = parseRequestTimeoutMs();
   const allItems = await loadItems(process.env.EVAL_ITEMS_ROOT || undefined);
   const approvedItems = selectedApprovedItems(allItems);
@@ -152,14 +201,14 @@ async function main(): Promise<void> {
   }
   const estimate = [...pricing.entries()].reduce((total, [model, modelPricing]) => {
     const modelCalls = selected.length * repeats;
-    return total + estimateCostUsd(modelPricing, modelCalls, 2_000, MAX_OUTPUT_TOKENS);
+    return total + estimateCostUsd(modelPricing, modelCalls, 2_000, outputTokenLimits.get(model) ?? MAX_OUTPUT_TOKENS);
   }, 0);
   const limit = Number(process.env.EVAL_MAX_BATCH_COST_USD ?? "3");
 
   console.table(models.map((model) => ({
     model,
     available_in_catalogue: pricing.has(model),
-    estimated_cost_usd: estimateCostUsd(pricing.get(model)!, selected.length * repeats, 2_000, MAX_OUTPUT_TOKENS).toFixed(4)
+    estimated_cost_usd: estimateCostUsd(pricing.get(model)!, selected.length * repeats, 2_000, outputTokenLimits.get(model) ?? MAX_OUTPUT_TOKENS).toFixed(4)
   })));
   console.log(`Profile=${profile}; repeats=${repeats}; calls=${calls}; request_timeout_ms=${requestTimeoutMs}; estimated cost=$${estimate.toFixed(4)} using 2,000 input and ${MAX_OUTPUT_TOKENS} output tokens per call; local estimate guard=$${limit.toFixed(2)}`);
 
@@ -174,7 +223,6 @@ async function main(): Promise<void> {
   if (!apiKey) throw new Error("OPENROUTER_API_KEY is not set.");
 
   const systemPrompt = await loadTutorPrompt();
-  const responseSchema = JSON.parse(await readFile(path.join(process.cwd(), "schema", "tutor-decision.schema.json"), "utf8"));
   const itemsById = new Map(approvedItems.map((item) => [item.id, item]));
   const results: ModelRunResult[] = [];
 
@@ -191,8 +239,12 @@ async function main(): Promise<void> {
             model,
             systemPrompt,
             context: buildTutorContext(item, testCase),
-            responseSchema,
-            configuration: { providerOrder: providerOrders.get(model), timeoutMs: requestTimeoutMs }
+            configuration: {
+              providerOrder: providerOrders.get(model),
+              timeoutMs: requestTimeoutMs,
+              reasoningEffort: reasoningEfforts.get(model),
+              maxOutputTokens: outputTokenLimits.get(model)
+            }
           });
           const validation = validateDecision(response.decision);
           const assertions = runAssertions(

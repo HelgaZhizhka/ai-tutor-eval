@@ -6,7 +6,7 @@ _A Content Lead-friendly template. This is not a YAML or coding file._
 
 Please copy the task section below for every task in the batch. A batch of five fully reviewed tasks is a good starting point for the first meaningful model comparison.
 
-You can write the tasks in English, Russian or Uzbek Latin. If the AI Tutor will be shown to learners in more than one language, each learner-facing language version needs its own human review.
+For the current learner-facing MVP, please provide Uzbek in Latin script. If a task will later be shown in another language, that version needs its own human review.
 
 If a field needs more work, please write `Pending review` rather than guessing. We will not add a task to the active AI evaluation set until it is approved.
 
@@ -19,7 +19,7 @@ The technical team will transfer the approved information into the evaluation re
 **Review status:** approved  
 **Reviewed by:** Name  
 **Review date:** YYYY-MM-DD  
-**Language:** English / Russian / Uzbek Latin  
+**Language:** Uzbek Latin
 **Grade:** 5  
 **Topic:**  
 **Difficulty:** 1 — Fluency / 2 — Standard / 3 — Challenge  
@@ -48,9 +48,13 @@ List mathematically correct alternatives that should be accepted. For example: `
 
 - **Hint 1 — smallest nudge:**
 - **Hint 2 — stronger guidance:**
-- **Hint 3 — last support before the answer:**
+- **Optional further hint:**
 
-### Common misconceptions and the appropriate tutor response
+For the current Demo Day flow, Hint 1 and Hint 2 are the static in-attempt hints. The static `solution_steps` are the full walkthrough; an optional third hint is not required for this flow.
+
+### Common misconceptions and the appropriate tutor response _(optional)_
+
+Complete this section only if the task is selected for a future Ask Tutor evaluation and there is a likely, well-understood wrong turn that the AI should handle. It is not required for every task in the static Hint 1 → Hint 2 → Full Walkthrough flow.
 
 | Misconception / likely wrong turn | Example student answer or reasoning | What should the AI Tutor do next? |
 | --- | --- | --- |
@@ -62,13 +66,9 @@ List mathematically correct alternatives that should be accepted. For example: `
 
 If there is a likely valid method that differs from the canonical solution — for example drawing, grouping, a table or systematic search — describe how the tutor should recognise it without forcing the student back to the canonical method.
 
-### Checking guidance
+### Checking guidance _(optional)_
 
 What is the key mathematical step that shows understanding? What should be accepted as correct, incomplete or incorrect?
-
-### Answer forms that must not appear in an early hint
-
-List the answer forms that would reveal the final answer too early. Usually this includes the canonical answer written in digits and words, plus important accepted forms.
 
 ### Source and use note
 
@@ -84,7 +84,7 @@ Anything the frontend, product or technical team should know about this task.
 
 ## What happens after the task is approved
 
-1. The technical team transfers the task into the repository.
-2. We draft several student scenarios for the task: correct answer, common mistake, “I do not know”, request for the answer, alternative method and other relevant situations.
-3. The Content Lead reviews the expected AI Tutor response in those scenarios.
-4. Only then does the task enter the active model-evaluation set.
+1. The technical team transfers the task into the private content workspace.
+2. The evaluation owner drafts only the few student scenarios needed for the selected AI mode.
+3. The Content Lead reviews the expected tutor behaviour in those scenarios.
+4. Only then do the scenarios enter an active model-evaluation set.

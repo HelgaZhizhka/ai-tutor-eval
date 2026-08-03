@@ -40,10 +40,17 @@ const testCase: EvalCase = {
   reviewer_comment: ""
 };
 
-describe("tutor request building", () => {
-  it("passes approved alternative-approach guidance to the tutor", () => {
+describe("Ask Tutor request building", () => {
+  it("passes only the task statement and the two already shown hints to the tutor", () => {
     const context = buildTutorContext(item, testCase);
-    expect(TUTOR_PROMPT_VERSION).toBe("tutor.v2");
-    expect(context.item).toMatchObject({ accepted_approaches: item.accepted_approaches });
+    expect(TUTOR_PROMPT_VERSION).toBe("tutor.ask.v2");
+    expect(context.item).toEqual({
+      id: item.id,
+      statement: item.statement,
+      shown_hints: item.hint_ladder.slice(0, 2)
+    });
+    expect(JSON.stringify(context)).not.toContain(item.canonical_answer);
+    expect(JSON.stringify(context)).not.toContain(item.solution_steps[0]);
+    expect(JSON.stringify(context)).not.toContain(item.accepted_answers[0]);
   });
 });

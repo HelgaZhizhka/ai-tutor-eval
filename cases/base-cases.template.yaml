@@ -3,7 +3,7 @@
 cases:
   - case_id: PLACEHOLDER-S1
     problem_id: PLACEHOLDER
-    language: en
+    language: uz
     review_status: draft
     # Required when review_status is approved:
     # reviewed_by: Content Lead name

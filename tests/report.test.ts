@@ -6,7 +6,7 @@ const successfulRun: ModelRunResult = {
   run_id: "run-1",
   timestamp: "2026-07-25T00:00:00.000Z",
   model: "model-a",
-  prompt_version: "tutor.v2",
+  prompt_version: "tutor.ask.v2",
   case_id: "case-1",
   repeat_index: 1,
   decision: null,

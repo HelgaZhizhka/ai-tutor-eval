@@ -46,6 +46,8 @@ export interface TextRequestConfiguration {
 export interface TutorRequestConfiguration {
   providerOrder?: string[];
   timeoutMs?: number;
+  reasoningEffort?: "none" | "minimal" | "low";
+  maxOutputTokens?: number;
 }
 
 export class OpenRouterRequestError extends Error {
@@ -72,12 +74,42 @@ function isTemporaryNetworkError(error: unknown): boolean {
     || error instanceof TypeError;
 }
 
+function parseTutorDecisionContent(rawContent: string): TutorDecision | null {
+  const withoutFence = rawContent
+    .trim()
+    .replace(/^```(?:json)?\s*/iu, "")
+    .replace(/\s*```$/u, "")
+    .trim();
+
+  try {
+    const parsed: unknown = JSON.parse(withoutFence);
+    // Some providers emit a harmless {"json": {...}} envelope in json-object
+    // mode. Preserve rawContent for auditability, but evaluate the actual
+    // decision object rather than treating provider-specific transport syntax
+    // as tutor behaviour.
+    if (
+      parsed
+      && typeof parsed === "object"
+      && !Array.isArray(parsed)
+      && Object.keys(parsed).length === 1
+      && "json" in parsed
+      && (parsed as { json?: unknown }).json
+      && typeof (parsed as { json?: unknown }).json === "object"
+      && !Array.isArray((parsed as { json?: unknown }).json)
+    ) {
+      return (parsed as { json: TutorDecision }).json;
+    }
+    return parsed as TutorDecision;
+  } catch {
+    return null;
+  }
+}
+
 export async function callOpenRouter(input: {
   apiKey: string;
   model: string;
   systemPrompt: string;
   context: Record<string, unknown>;
-  responseSchema: object;
   configuration?: TutorRequestConfiguration;
   fetchImpl?: typeof fetch;
   wait?: (milliseconds: number) => Promise<void>;
@@ -108,14 +140,16 @@ export async function callOpenRouter(input: {
           // unsupported optional parameter keeps the contract comparable
           // across all shortlisted models; repeat runs capture residual
           // response variance.
-          max_tokens: MAX_OUTPUT_TOKENS,
+          max_tokens: input.configuration?.maxOutputTokens ?? MAX_OUTPUT_TOKENS,
+          // This task needs a short, constrained next move rather than a
+          // long hidden chain of thought. Explicitly disable reasoning so it
+          // cannot consume the JSON response budget (not merely hide it).
+          reasoning: { effort: input.configuration?.reasoningEffort ?? "none" },
           response_format: {
-            type: "json_schema",
-            json_schema: {
-              name: "tutor_decision",
-              strict: true,
-              schema: input.responseSchema
-            }
+            // `json_object` is the portable OpenRouter response-format subset
+            // accepted by the shortlisted providers. The full TutorDecision
+            // schema remains enforced locally after parsing.
+            type: "json_object"
           },
           provider: {
             ...(input.configuration?.providerOrder ? { order: input.configuration.providerOrder } : {}),
@@ -130,12 +164,7 @@ export async function callOpenRouter(input: {
       if (response.ok) {
         const payload = JSON.parse(responseText) as OpenRouterResponse;
         const rawContent = payload.choices?.[0]?.message?.content ?? "";
-        let decision: TutorDecision | null = null;
-        try {
-          decision = JSON.parse(rawContent) as TutorDecision;
-        } catch {
-          // A non-JSON response is recorded and evaluated as a schema failure.
-        }
+        const decision = parseTutorDecisionContent(rawContent);
 
         return {
           rawContent,
@@ -171,8 +200,8 @@ export async function callOpenRouter(input: {
 }
 
 /**
- * A deliberately small text-only call for the synthetic Ask Why smoke test.
- * It is not used by the active TutorDecision evaluation flow.
+ * Text-only call used by Ask Why evaluation and regression checks.
+ * It is separate from the structured Ask Tutor evaluation flow.
  */
 export async function callOpenRouterText(input: {
   apiKey: string;
@@ -195,7 +224,7 @@ export async function callOpenRouterText(input: {
         headers: {
           Authorization: `Bearer ${input.apiKey}`,
           "Content-Type": "application/json",
-          "X-Title": "Olympiad Academy Synthetic Ask Why Smoke Test"
+          "X-Title": "Olympiad Academy AI Tutor Evaluation"
         },
         signal: AbortSignal.timeout(30_000),
         body: JSON.stringify({
@@ -204,13 +233,11 @@ export async function callOpenRouterText(input: {
             { role: "system", content: input.systemPrompt },
             { role: "user", content: JSON.stringify(input.context) }
           ],
-          temperature: 0,
           max_tokens: input.configuration?.maxOutputTokens ?? 600,
           reasoning: {
-            // `exclude` hides reasoning from the learner; it does not turn it
-            // off. The selected effort is recorded with every run.
-            effort: input.configuration?.reasoningEffort ?? "low",
-            exclude: true
+            // Keep this explicit rather than hiding reasoning with `exclude`:
+            // hidden reasoning can still consume the response budget.
+            effort: input.configuration?.reasoningEffort ?? "none"
           },
           provider: {
             // If an order is supplied, this is a controlled provider run.

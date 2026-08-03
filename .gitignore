@@ -10,5 +10,5 @@ coverage/
 
 # Generated evaluation output.
 results/raw/
-results/synthetic-smoke/
+results/ask-why-regression/
 *.log

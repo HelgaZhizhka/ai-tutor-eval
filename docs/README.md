@@ -1,29 +1,13 @@
-# Olympiad Academy MVP Wiki
+# Evaluation documentation
 
-This folder records the product and engineering decisions for the first Olympiad Academy AI Tutor MVP. It is deliberately short: these documents are a shared source of truth for the team, not a full product specification.
+This folder contains the implementation specification for Ask Tutor and the material needed to understand, repeat or extend the model-evaluation work.
 
-## MVP in one sentence
-
-Olympiad Academy helps beginner Grade 5 students build mathematical problem-solving skills through teacher-approved tasks and staged hints that do not reveal the answer too early. The first live-AI candidate is the optional, task-anchored Ask Why feature.
-
-## Product boundaries
-
-- First subject: mathematics.
-- First learner: a beginner around Grade 5 who has not previously participated in olympiads.
-- First market: Uzbekistan.
-- Delivery: web first.
-- Current templates use English because the first received materials were in English. The team must decide the MVP language scope and which language versions of the AI Tutor will be evaluated before the demo. Every learner-facing tutor language needs independently human-reviewed content and scenarios; Uzbek uses Latin script.
-
-## Read next
-
-| Document | Purpose |
+| Document | Use it for |
 | --- | --- |
-| [AI Tutor MVP](AI_TUTOR_MVP.md) | The current rule-based MVP scope and the future active-tutor direction. |
-| [Ask Why Evaluation](ASK_WHY_EVALUATION.md) | Prepared plan and template for selecting a model for the optional live Ask Why feature. |
-| [Real-content Ask Why Evaluation Protocol](REAL_CONTENT_ASK_WHY_EVALUATION_PROTOCOL.md) | Controlled model + provider + configuration comparison after Uzbek content approval. |
-| [Content Contract](CONTENT_CONTRACT.md) | What a teacher-approved task must contain before it can be used by the tutor or model evaluation. |
-| [Evaluation Harness](../TEAM_README.md) | How candidate LLMs are compared before one is selected for the MVP. |
+| [Ask Why Model Decision — 2026-08-03](ASK_WHY_MODEL_DECISION_2026-08-03.md) | The public-safe evidence and the selected primary/fallback configuration for Demo Day. |
+| [Ask Why Evaluation](ASK_WHY_EVALUATION.md) | The reusable method and gates for re-running Ask Why after a material change. |
+| [AI Tutor / Ask Tutor MVP Technical Specification](AI_TUTOR_MVP.md) | The implementation requirements for the separate in-attempt Ask Tutor feature. |
+| [Ask Tutor Evaluation](ASK_TUTOR_EVALUATION.md) | The separate, not-yet-run evaluation plan for live in-attempt support. |
+| [Content Contract](CONTENT_CONTRACT.md) | The minimum reviewed task and scenario data required before an evaluation may use it. |
 
-## Core principle
-
-The model is not the mathematical source of truth. Teacher-approved content, deterministic checks where possible, and product rules constrain the model's tutoring behaviour.
+The student application and its source code live outside this repository. The Ask Tutor technical specification is kept here because it defines the behaviour and safety boundaries that the separate model evaluation must test.

@@ -5,8 +5,7 @@ const input = {
   apiKey: "test-key",
   model: "test-model",
   systemPrompt: "test prompt",
-  context: {},
-  responseSchema: {}
+  context: {}
 };
 
 describe("OpenRouter request handling", () => {
@@ -35,6 +34,8 @@ describe("OpenRouter request handling", () => {
     const body = JSON.parse(String(requests[0].body));
     expect(body.max_tokens).toBe(MAX_OUTPUT_TOKENS);
     expect(body.temperature).toBeUndefined();
+    expect(body.reasoning).toEqual({ effort: "none" });
+    expect(body.response_format).toEqual({ type: "json_object" });
   });
 
   it("does not retry an invalid 400 request", async () => {
@@ -92,7 +93,45 @@ describe("OpenRouter request handling", () => {
     }
   });
 
-  it("returns a text response and completion reason for the synthetic smoke test", async () => {
+  it("passes a model-specific output limit and reasoning effort", async () => {
+    const requests: RequestInit[] = [];
+    const fetchImpl: typeof fetch = async (_request, init) => {
+      requests.push(init ?? {});
+      return new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({}) } }], usage: {} }), { status: 200 });
+    };
+
+    await callOpenRouter({
+      ...input,
+      configuration: { maxOutputTokens: 2_400, reasoningEffort: "low" },
+      fetchImpl,
+      wait: async () => undefined
+    });
+
+    const body = JSON.parse(String(requests[0].body));
+    expect(body.max_tokens).toBe(2_400);
+    expect(body.reasoning).toEqual({ effort: "low" });
+  });
+
+  it("normalizes common JSON transport wrappers while preserving a structured decision", async () => {
+    const decision = {
+      assessment: "does_not_know",
+      mistake_id: null,
+      next_action: "ask_guiding_question",
+      hint_level: 0,
+      message_to_student: "Qaysi amal kerakligini birga aniqlaymiz.",
+      response_language: "uz"
+    };
+    const responses = [
+      new Response(JSON.stringify({ choices: [{ message: { content: `\`\`\`json\n${JSON.stringify(decision)}\n\`\`\`` } }], usage: {} }), { status: 200 }),
+      new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify({ json: decision }) } }], usage: {} }), { status: 200 })
+    ];
+    const fetchImpl: typeof fetch = async () => responses.shift()!;
+
+    await expect(callOpenRouter({ ...input, fetchImpl, wait: async () => undefined })).resolves.toMatchObject({ decision });
+    await expect(callOpenRouter({ ...input, fetchImpl, wait: async () => undefined })).resolves.toMatchObject({ decision });
+  });
+
+  it("returns a text response and completion reason for Ask Why evaluation", async () => {
     const requests: RequestInit[] = [];
     const fetchImpl: typeof fetch = async (_request, init) => {
       requests.push(init ?? {});
@@ -113,7 +152,7 @@ describe("OpenRouter request handling", () => {
 
     expect(result).toMatchObject({ rawContent: "Uzbek response", finishReason: "stop", attemptCount: 1 });
     const body = JSON.parse(String(requests[0].body));
-    expect(body.reasoning).toEqual({ effort: "none", exclude: true });
+    expect(body.reasoning).toEqual({ effort: "none" });
     expect(body.max_tokens).toBe(1_000);
     expect(body.provider).toEqual({ order: ["test-provider"], allow_fallbacks: false, data_collection: "deny" });
     expect(body.response_format).toBeUndefined();
