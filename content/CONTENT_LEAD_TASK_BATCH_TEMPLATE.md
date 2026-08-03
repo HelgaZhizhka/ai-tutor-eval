@@ -56,7 +56,7 @@ For the current Demo Day flow, Hint 1 and Hint 2 are the static in-attempt hints
 
 Complete this section only if the task is selected for a future Ask Tutor evaluation and there is a likely, well-understood wrong turn that the AI should handle. It is not required for every task in the static Hint 1 → Hint 2 → Full Walkthrough flow.
 
-| Misconception / likely wrong turn | Example student answer or reasoning | What should the AI Tutor do next? |
+| Misconception / likely wrong turn | Example student answer or reasoning | What should Ask Tutor do next? |
 | --- | --- | --- |
 |  |  |  |
 |  |  |  |

@@ -19,7 +19,7 @@ Given the same approved task, two visible hints and learner message, can a model
 
 ## Current harness state
 
-The repository contains a draft prompt (`prompts/tutor.ask.v2.md`), JSON schema and runner (`npm run eval:screening`). The runner sends only the task statement, the first two already visible hints, learner message and short conversation history. It intentionally excludes canonical answers, solution steps and unrevealed hints from the model request.
+The evaluation runner and working prompt are intentionally kept local while this feature is still being designed and tested. The intended model context is limited to the task statement, the first two already visible hints, learner message and short conversation history. It excludes canonical answers, solution steps and unrevealed hints.
 
 The active case file is empty by design. Before any paid run, Content Lead and Product/Technical Leads need to approve the scenarios and confirm exactly when Ask Tutor appears in the product flow.
 

@@ -11,4 +11,8 @@ coverage/
 # Generated evaluation output.
 results/raw/
 results/ask-why-regression/
+
+# Ask Tutor prompt drafts are still being iterated locally and must not be
+# committed to this public evaluation repository.
+prompts/tutor.ask.*.md
 *.log
