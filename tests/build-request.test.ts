@@ -43,7 +43,7 @@ const testCase: EvalCase = {
 describe("Ask Tutor request building", () => {
   it("passes only the task statement and the two already shown hints to the tutor", () => {
     const context = buildTutorContext(item, testCase);
-    expect(TUTOR_PROMPT_VERSION).toBe("tutor.ask.v2");
+    expect(TUTOR_PROMPT_VERSION).toBe("tutor.ask.v4");
     expect(context.item).toEqual({
       id: item.id,
       statement: item.statement,

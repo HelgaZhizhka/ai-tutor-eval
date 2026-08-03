@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import type { EvalCase, MathItem } from "./types.js";
 
-export const TUTOR_PROMPT_VERSION = "tutor.ask.v2";
+export const TUTOR_PROMPT_VERSION = "tutor.ask.v4";
 
 export async function loadTutorPrompt(): Promise<string> {
   return readFile(path.join(process.cwd(), "prompts", `${TUTOR_PROMPT_VERSION}.md`), "utf8");
