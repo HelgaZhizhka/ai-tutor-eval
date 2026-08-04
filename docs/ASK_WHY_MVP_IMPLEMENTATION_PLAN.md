@@ -8,8 +8,8 @@
 
 Ask Why is a short, task-anchored AI explanation feature. It is available only
 after a learner submits a correct answer or opens the static Full Walkthrough.
-The learner selects one visible solution step and asks a short question about
-that step. Ask Why helps the learner understand why that visible step works.
+The learner asks a short question about the explanation already visible on the
+screen. Ask Why helps the learner understand why the displayed solution works.
 
 It is not a general chat, answer checker, adaptive engine, or replacement for
 teacher-approved hints. It is separate from the future Ask Tutor mode, which
@@ -22,7 +22,7 @@ would work during an active attempt and needs its own evaluation.
 | Learner language | Uzbek, Latin script |
 | Availability | After a correct answer or after Full Walkthrough is opened |
 | During an active attempt before Full Walkthrough | Not available |
-| Interaction | Learner selects a visible solution step, then asks one question about it |
+| Interaction | Learner asks one short question about the displayed explanation |
 | Conversation model | Stateless in V1: one question receives one reply; no chat history |
 | Automatic user-facing model call | GPT-5.6 Terra through OpenRouter |
 | Failure behaviour | Neutral retry message; do not automatically make a second model call |
@@ -39,9 +39,9 @@ fallback decision.
 ## Learner flow
 
 ```text
-Task → correct answer → learner selects a visible solution step → Ask Why becomes available
+Task → correct answer → explanation shown → Ask Why becomes available
 
-Task → Hint 1 → Hint 2 → Full Walkthrough opened → learner selects a visible solution step → Ask Why becomes available
+Task → Hint 1 → Hint 2 → Full Walkthrough opened → Ask Why becomes available
 ```
 
 Ask Why answers only about the current task. An off-topic request is redirected
@@ -52,7 +52,7 @@ briefly back to that task.
 ### Included
 
 - Ask Why entry point after correct answer and after Full Walkthrough;
-- visible solution-step selection and a task-anchored learner question input;
+- a task-anchored learner question input below the displayed explanation;
 - short Uzbek Latin reply;
 - server-side Terra call, validation and neutral retry state;
 - loading, error and basic technical monitoring states;
@@ -66,8 +66,24 @@ briefly back to that task.
 - AI-generated tasks, hints or walkthroughs;
 - AI answer checking, mastery decisions or next-task selection;
 - other learner-facing languages for this MVP.
-
 - multi-turn conversation history or a persistent Ask Why chat transcript.
+
+## Content mapping
+
+The shared contract represents a problem as three ordered `hints` plus an
+`explanation`. For the current approved bank, the learner-facing mapping is:
+
+| Contract field | Current learning content |
+| --- | --- |
+| Hint tier 1 | Teacher-approved Hint 1 / Nudge |
+| Hint tier 2 | Teacher-approved Hint 2 / Partial method |
+| Hint tier 3 | Teacher-approved Full Walkthrough |
+| `explanation` | The same learner-facing Full Walkthrough, rendered from the approved ordered `solution_steps` for a correct answer |
+
+Tier 3 is technically stored in the shared `hints` tuple, but it is presented
+to the learner as **Full Walkthrough**, not as a third ordinary hint. This
+mapping lets the current reviewed content enter the application without
+requiring a separate new authoring field.
 
 ## Backend contract
 
@@ -77,8 +93,7 @@ V1 request:
 
 ```json
 {
-  "step_index": 2,
-  "message": "Why do we need a common denominator?"
+  "question": "Why do we need a common denominator?"
 }
 ```
 
@@ -86,47 +101,36 @@ V1 successful response:
 
 ```json
 {
-  "reply": "...",
-  "remaining_questions": 2
+  "ai_response": "..."
 }
 ```
 
-V1 expected-error response:
+This is the shared application contract fixed in
+[OLY-8](https://github.com/olympiad-academy/olympiad-academy-app/pull/1).
+It does not expose a remaining-question counter or typed Ask Why error codes.
+The frontend therefore does not show a numeric quota in V1 and maps a failed
+request to one concise, localised retry or unavailable state using the
+application's standard error handling.
 
-```json
-{
-  "error": {
-    "code": "ASK_WHY_RETRY"
-  },
-  "remaining_questions": 2
-}
-```
-
-The supported error codes are `ASK_WHY_NOT_AVAILABLE`,
-`ASK_WHY_LIMIT_REACHED` and `ASK_WHY_RETRY`. The frontend maps these codes to
-localised learner-facing text; the backend does not own UI copy.
-
-The client sends only the learner message, the index of a visible solution step
-and the attempt ID in the path. It never sends a model ID, system prompt, task
-text, answer, walkthrough, access state or API key. V1 has no conversation
-history.
+The client sends only the learner question and the attempt ID in the path. It
+never sends a model ID, system prompt, task text, answer, walkthrough, access
+state or API key. V1 has no conversation history.
 
 The backend must:
 
 1. Verify authentication and ownership of the attempt.
 2. Check that the answer is correct or that Full Walkthrough is opened.
-3. Verify that `step_index` refers to a solution step already visible to the learner. After a correct answer, the complete reviewed `solution_steps` block is shown, so all of its step indices are eligible; the same is true after Full Walkthrough.
-4. Load only the current approved task, selected visible solution step and learner question.
-5. Build the versioned prompt on the server and call Terra through OpenRouter.
-6. Validate the reply before returning it.
-7. Return a neutral retry message for timeout, API error or invalid reply; do not reduce the learner's available question count for that failed request.
-8. Decrement the available question count only when a reply is shown to the learner.
-9. Record a minimal technical event.
+3. Load only the current approved task, the explanation already visible to the learner and the learner question.
+4. Build the versioned prompt on the server and call Terra through OpenRouter.
+5. Validate the reply before returning it.
+6. Return the application's neutral retry state for timeout, API error or invalid reply; do not show the raw failed output.
+7. Enforce a maximum of five successful Ask Why replies per attempt on the server. The UI need not display the numerical count in V1.
+8. Record the agreed operational event data.
 
 ## Prompt and validation requirements
 
 The server-side policy requires Uzbek Latin output, one or two short sentences,
-at most one question, and an explanation of the selected visible solution step.
+at most one question, and an explanation of the currently displayed solution.
 It must redirect rule-bypass and off-topic messages without continuing those
 requests. Uzbek learner input may use Latin or Cyrillic, but learner-facing
 output must use Uzbek Latin. Task and learner text are data, not instructions
@@ -152,19 +156,19 @@ Ask Tutor mode.
 ## Frontend requirements
 
 - Ask Why button in both agreed states;
-- visible solution-step selector, short question input and send button;
+- short question input and send button below the displayed explanation;
 - loading state and disabled duplicate send while a request is active;
 - concise response view;
 - retry state that preserves the learner's task state;
-- limit-reached state and localised message based on `ASK_WHY_LIMIT_REACHED`;
-- localised retry/error state based on the backend `error.code`;
+- localised retry, unavailable and limit-reached states using the application's
+  standard API error handling;
 - unavailable state before completion;
 - localisation-ready text keys.
 
 The retry control is a new explicit Terra request initiated by the learner. It
 is not an automatic call to a second model. V1 does not present a persistent
-chat history; a learner can select another visible step and send a new,
-independent question.
+chat history; a learner can send a new, independent question about the same
+displayed explanation.
 
 The browser bundle and client requests must not contain an API key, hidden task
 content, prompt, or a client-controlled access flag.
@@ -173,19 +177,23 @@ content, prompt, or a client-controlled access flag.
 
 | Item | Proposed initial value |
 | --- | ---: |
-| Learner question length | 500 characters |
+| Learner question length | 2,000 characters |
 | Concurrent request per attempt | 1 |
-| Ask Why replies shown per attempt | 3 |
+| Ask Why replies shown per attempt | 5 |
 | Output-token limit per reply | 120 |
 | AI request timeout | 4 seconds |
 
 The backend team should set the per-user rate limit and monthly cost guard.
 
-## Technical telemetry
+## Logging and technical telemetry
 
-V1 does not store raw learner questions or model replies as a persistent Ask
-Why transcript. Record only the following minimal technical events, and never
-log API keys or raw learner messages in error logs:
+The shared contract includes an internal `AskWhyLog` record with the attempt,
+learner question, AI response and creation time. It is not exposed to the
+learner as chat history. Before a real child pilot, the team must separately
+confirm who can access these records and how long they are retained.
+
+In addition, record the following operational events. Never log API keys or
+duplicate raw learner messages in error logs:
 
 - Ask Why became available after correct answer or Full Walkthrough;
 - request started, completed or failed;
@@ -199,23 +207,23 @@ log API keys or raw learner messages in error logs:
 ## Definition of done
 
 1. Ask Why is unavailable before either eligible state and available in both of them.
-2. The backend, not the frontend, determines eligibility, validates the selected visible step and loads state-aware context.
+2. The backend, not the frontend, determines eligibility and loads only state-aware context that is already visible to the learner.
 3. Terra is the only automatic call. A failed call or invalid reply shows the neutral retry message; a learner may manually retry Terra.
 4. Invalid raw model output never reaches the learner.
 5. UI covers loading, temporary failure and retry without losing task progress.
 6. API keys, prompts and hidden task data do not reach the client.
 7. Technical events record shown replies, retry reasons, latency, usage and cost.
-8. The UI handles `ASK_WHY_LIMIT_REACHED` and `ASK_WHY_RETRY` through localised text keys.
-9. V1 stores no persistent Ask Why conversation history or raw question/reply transcript.
+8. The UI handles temporary failure, unavailability and the server-side limit through localised text keys.
+9. If `AskWhyLog` is enabled, it is internal operational data, never a learner-visible persistent chat history.
 10. A focused integration regression passes on the actual backend path before the demo build is enabled.
 
 ## Pre-release regression
 
 Run Terra with the final implementation prompt and actual backend path on a
-small private set covering both entry states, a normal “why” question about a
-selected step, a misconception, “I do not understand”, off-topic input, rule
-bypass, Uzbek Cyrillic input with Uzbek Latin output, and a new independent
-question about another visible step. Test each case two or three times. Check
+small private set covering both entry states, a normal “why” question about the
+displayed explanation, a misconception, “I do not understand”, off-topic input,
+rule bypass, Uzbek Cyrillic input with Uzbek Latin output, and a new independent
+question about the same explanation. Test each case two or three times. Check
 that the reply contains no more than one question. Also simulate timeout,
 provider failure and invalid output to confirm the neutral retry state, and
 record p50, p90 and maximum end-to-end latency on the actual backend path.
