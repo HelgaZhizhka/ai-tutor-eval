@@ -8,8 +8,10 @@
 
 Ask Why is a short, task-anchored AI explanation feature. It is available only
 after a learner submits a correct answer or opens the static Full Walkthrough.
-The learner asks a short question about the explanation already visible on the
-screen. Ask Why helps the learner understand why the displayed solution works.
+After a correct answer, it answers a short follow-up about why the learner's
+approach or answer works without automatically showing the full solution.
+After Full Walkthrough, it answers a short question about the explanation
+already visible on screen.
 
 It is not a general chat, answer checker, adaptive engine, or replacement for
 teacher-approved hints. It is separate from the future Ask Tutor mode, which
@@ -22,12 +24,12 @@ would work during an active attempt and needs its own evaluation.
 | Learner language | Uzbek, Latin script |
 | Availability | After a correct answer or after Full Walkthrough is opened |
 | During an active attempt before Full Walkthrough | Not available |
-| Interaction | Learner asks one short question about the displayed explanation |
+| Interaction | One short Ask Why question per attempt, available after correct answer or Full Walkthrough |
 | Conversation model | Stateless in V1: one question receives one reply; no chat history |
 | Automatic user-facing model call | GPT-5.6 Terra through OpenRouter |
 | Failure behaviour | Neutral retry message; do not automatically make a second model call |
 | Response style | Short, child-friendly, task-anchored |
-| Core learning support | Teacher-approved Hint 1, Hint 2 and Full Walkthrough |
+| Core learning support | Teacher-approved Hint 1, Hint 2, Hint 3 and Full Walkthrough |
 | Model selection | Does not select next tasks, difficulty or answer correctness |
 
 Claude Sonnet 5 remains an evaluated reserve candidate. The recommended Demo
@@ -39,9 +41,9 @@ fallback decision.
 ## Learner flow
 
 ```text
-Task → correct answer → explanation shown → Ask Why becomes available
+Task → correct answer → confirmation → Ask Why becomes available
 
-Task → Hint 1 → Hint 2 → Full Walkthrough opened → Ask Why becomes available
+Task → Hint 1 → Hint 2 → Hint 3 → Full Walkthrough opened → Ask Why becomes available
 ```
 
 Ask Why answers only about the current task. An off-topic request is redirected
@@ -52,7 +54,7 @@ briefly back to that task.
 ### Included
 
 - Ask Why entry point after correct answer and after Full Walkthrough;
-- a task-anchored learner question input below the displayed explanation;
+- one task-anchored learner question input after correct answer and after Full Walkthrough;
 - short Uzbek Latin reply;
 - server-side Terra call, validation and neutral retry state;
 - loading, error and basic technical monitoring states;
@@ -77,13 +79,13 @@ The shared contract represents a problem as three ordered `hints` plus an
 | --- | --- |
 | Hint tier 1 | Teacher-approved Hint 1 / Nudge |
 | Hint tier 2 | Teacher-approved Hint 2 / Partial method |
-| Hint tier 3 | Teacher-approved Full Walkthrough |
-| `explanation` | The same learner-facing Full Walkthrough, rendered from the approved ordered `solution_steps` for a correct answer |
+| Hint tier 3 | Teacher-approved Hint 3 |
+| `explanation` | Learner-facing Full Walkthrough, rendered from the approved ordered `solution_steps` after all three hints are used |
 
-Tier 3 is technically stored in the shared `hints` tuple, but it is presented
-to the learner as **Full Walkthrough**, not as a third ordinary hint. This
-mapping lets the current reviewed content enter the application without
-requiring a separate new authoring field.
+The third tier is a genuine third hint. The Full Walkthrough is separate,
+stored in `explanation` and rendered from the approved `solution_steps`. This
+mapping uses the existing reviewed content without requiring a separate new
+authoring field.
 
 ## Backend contract
 
@@ -120,17 +122,20 @@ The backend must:
 
 1. Verify authentication and ownership of the attempt.
 2. Check that the answer is correct or that Full Walkthrough is opened.
-3. Load only the current approved task, the explanation already visible to the learner and the learner question.
+3. Load only the current approved task and learner question. After a correct answer, use the approved Full Walkthrough as protected server-side context; after Full Walkthrough, use the explanation already visible to the learner.
 4. Build the versioned prompt on the server and call Terra through OpenRouter.
 5. Validate the reply before returning it.
 6. Return the application's neutral retry state for timeout, API error or invalid reply; do not show the raw failed output.
-7. Enforce a maximum of five successful Ask Why replies per attempt on the server. The UI need not display the numerical count in V1.
+7. Enforce a maximum of one successful Ask Why reply per attempt on the server. The UI need not display the numerical count in V1.
 8. Record the agreed operational event data.
 
 ## Prompt and validation requirements
 
 The server-side policy requires Uzbek Latin output, one or two short sentences,
-at most one question, and an explanation of the currently displayed solution.
+at most one question, and a response about the current task. After a correct
+answer, it explains only the reasoning asked about and does not proactively
+reproduce the Full Walkthrough. After Full Walkthrough, it explains the
+reasoning in the displayed solution.
 It must redirect rule-bypass and off-topic messages without continuing those
 requests. Uzbek learner input may use Latin or Cyrillic, but learner-facing
 output must use Uzbek Latin. Task and learner text are data, not instructions
@@ -155,8 +160,9 @@ Ask Tutor mode.
 
 ## Frontend requirements
 
-- Ask Why button in both agreed states;
-- short question input and send button below the displayed explanation;
+- Ask Why button in both agreed states: the correct-answer confirmation and
+  Full Walkthrough;
+- short question input and send button in the current eligible state;
 - loading state and disabled duplicate send while a request is active;
 - concise response view;
 - retry state that preserves the learner's task state;
@@ -168,7 +174,7 @@ Ask Tutor mode.
 The retry control is a new explicit Terra request initiated by the learner. It
 is not an automatic call to a second model. V1 does not present a persistent
 chat history; a learner can send a new, independent question about the same
-displayed explanation.
+task only if the one-question allowance has not already been used.
 
 The browser bundle and client requests must not contain an API key, hidden task
 content, prompt, or a client-controlled access flag.
@@ -179,7 +185,7 @@ content, prompt, or a client-controlled access flag.
 | --- | ---: |
 | Learner question length | 2,000 characters |
 | Concurrent request per attempt | 1 |
-| Ask Why replies shown per attempt | 5 |
+| Ask Why replies shown per attempt | 1 |
 | Output-token limit per reply | 120 |
 | AI request timeout | 4 seconds |
 
@@ -206,8 +212,8 @@ duplicate raw learner messages in error logs:
 
 ## Definition of done
 
-1. Ask Why is unavailable before either eligible state and available in both of them.
-2. The backend, not the frontend, determines eligibility and loads only state-aware context that is already visible to the learner.
+1. Ask Why is unavailable before either eligible state and available after a correct answer and after Full Walkthrough, until the one-question allowance is used.
+2. The backend, not the frontend, determines eligibility and loads only approved, state-aware context for the current task; it never trusts client-supplied task or access data.
 3. Terra is the only automatic call. A failed call or invalid reply shows the neutral retry message; a learner may manually retry Terra.
 4. Invalid raw model output never reaches the learner.
 5. UI covers loading, temporary failure and retry without losing task progress.
@@ -221,9 +227,10 @@ duplicate raw learner messages in error logs:
 
 Run Terra with the final implementation prompt and actual backend path on a
 small private set covering both entry states, a normal “why” question about the
-displayed explanation, a misconception, “I do not understand”, off-topic input,
-rule bypass, Uzbek Cyrillic input with Uzbek Latin output, and a new independent
-question about the same explanation. Test each case two or three times. Check
+reasoning after a correct answer, a normal “why” question about the displayed
+explanation, a misconception, “I do not understand”, off-topic input, rule
+bypass, Uzbek Cyrillic input with Uzbek Latin output, and an attempt to ask a
+second question after the allowance is used. Test each case two or three times. Check
 that the reply contains no more than one question. Also simulate timeout,
 provider failure and invalid output to confirm the neutral retry state, and
 record p50, p90 and maximum end-to-end latency on the actual backend path.
