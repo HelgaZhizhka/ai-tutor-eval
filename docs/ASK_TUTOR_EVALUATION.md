@@ -4,7 +4,11 @@
 
 **Not run yet. No model has been selected for Ask Tutor.**
 
-Ask Tutor is a separate product mode from Ask Why. It may help a learner take one next reasoning step **during an active attempt**, after Hint 1 and Hint 2 have already been shown. It must be evaluated separately before it is put in front of learners.
+Ask Tutor is a separate internal capability from Ask Why. The learner may see
+one consistent AI assistant, but Ask Tutor has different safety boundaries: it
+may help a learner take one next reasoning step **during an active attempt and
+before Full Walkthrough**. Its exact entry point is a future product decision.
+It must be evaluated separately before it is put in front of learners.
 
 ## What this evaluation must establish
 
@@ -19,9 +23,17 @@ Given the same approved task, two visible hints and learner message, can a model
 
 ## Current harness state
 
-The repository contains a versioned draft prompt (tutor.ask.v3.md), JSON schema and runner (npm run eval:screening). These are evaluation inputs, not a final product decision. The runner sends only the task statement, the first two already visible hints, learner message and short conversation history. It intentionally excludes canonical answers, solution steps and unrevealed hints from the model request.
+The repository contains a versioned draft prompt (tutor.ask.v3.md), JSON schema
+and runner (npm run eval:screening). These are evaluation inputs, not a final
+product decision. The runner sends only the task statement, the hints already
+visible to the learner, learner message and — only when explicitly testing a
+multi-turn design — a short conversation history. It intentionally excludes
+canonical answers, solution steps and unrevealed hints from the model request.
 
-The active case file is empty by design. Before any paid run, Content Lead and Product/Technical Leads need to approve the scenarios and confirm exactly when Ask Tutor appears in the product flow.
+The active case file is empty by design. Before any paid run, Content Lead and
+Product/Technical Leads need to approve the scenarios and confirm exactly when
+Ask Tutor appears in the product flow. It is not part of the August 8 Demo Day
+flow.
 
 ## Required evaluation set
 

@@ -67,7 +67,7 @@ If it is competitive, it then goes through the same high-risk regression alongsi
 - Ask Why is a short, task-anchored explanation feature. In the Demo Day flow it appears only after the learner has completed a problem or seen the full walkthrough.
 - The model does not check answers, choose hint tiers, choose the next task or change difficulty.
 - Teacher-approved hints and `solution_steps` remain the core learning support.
-- This decision does **not** validate the future Ask Tutor mode. Ask Tutor works during an active attempt and requires a separate multi-turn evaluation.
+- This decision does **not** validate the future Ask Tutor capability. Ask Tutor works during an active attempt and requires its own evaluation; a multi-turn evaluation is needed only if the product later chooses a chat-like design.
 
 ## Integration requirements
 

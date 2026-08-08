@@ -4,14 +4,16 @@ This repository helps Olympiad Academy test AI models before using them in a lea
 
 We test models only on teacher-reviewed mathematics tasks and learner scenarios. The goal is not to find the “smartest” model in general, but to check whether a model is safe, useful and clear for a Grade 5 learner in Uzbek Latin.
 
-## Two separate evaluations
+## One learner-facing assistant, two separate evaluations
 
 | Evaluation | What the AI does | Status |
 | --- | --- | --- |
 | **Ask Why** | After a learner completes a task or sees the full walkthrough, the learner may ask a short question about that task. | Completed for Demo Day. GPT-5.6 Terra is the selected automatic model; failures show a neutral retry message. |
-| **Ask Tutor** | During an active attempt, after Hint 1 and Hint 2, the AI gives one small next step without solving the task. | Not evaluated yet. This is a separate future test. |
+| **Ask Tutor** | During an active attempt and before Full Walkthrough, the AI may give one small next step without solving the task. Its exact entry point will be decided before implementation. | Not evaluated yet. This is a separate future test. |
 
-The two modes must not be mixed: they appear at different moments in the learning flow and require different test scenarios.
+The learner should see one consistent AI assistant. Internally, Ask Why and Ask
+Tutor remain separate capabilities: they appear at different moments, receive
+different context and require different safety rules and test scenarios.
 
 ## How evaluation works
 

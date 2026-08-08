@@ -6,7 +6,10 @@ This document defines which teacher-reviewed content is needed for the current l
 
 ## Current confirmed content boundary
 
-For the Grade 5 Uzbek (Latin) MVP, the task bank is the source of truth for learner-facing mathematics. Each task used in the flow has reviewed task wording, Hint 1, Hint 2, a static full walkthrough and accepted answer forms.
+For the Grade 5 Uzbek (Latin) MVP, the task bank is the source of truth for
+learner-facing mathematics. Each task used in the flow has reviewed task
+wording, Hint 1, Hint 2, Hint 3, a static Full Walkthrough and accepted answer
+forms.
 
 The public repository does not contain the task texts or learner scenarios. The technical team records item-level status in the private content workspace.
 
@@ -18,8 +21,8 @@ The public repository does not contain the task texts or learner scenarios. The 
 | Uzbek language and locale | Selects the reviewed learner-facing wording and Latin script. |
 | Review status | Prevents unreviewed content entering a learner flow or paid evaluation. |
 | Statement | Shown to the learner and, when required, sent to the AI as current task context. |
-| Hint 1 and Hint 2 | Static teacher-approved support during an active attempt. Both may be sent to Ask Tutor only after they are shown. |
-| Static full walkthrough | Tier 3 support after the active attempt. It is not an Ask Tutor message and is never sent to Ask Tutor. |
+| Hint 1, Hint 2 and Hint 3 | Static teacher-approved support during an active attempt. A future Ask Tutor may receive only hints already shown to the learner. |
+| Static Full Walkthrough | Shown after the three hints when the learner remains stuck. It is never sent to Ask Tutor. |
 | Accepted answers and answer type | Used by the answer verifier and product logic; never sent to Ask Tutor. |
 | Source and licence status | Confirms that the project may use the task. |
 
@@ -29,9 +32,13 @@ Grade, topic, skills, prerequisite skills and difficulty remain useful bank meta
 
     hint_ladder[0] → Hint 1
     hint_ladder[1] → Hint 2
-    solution_steps  → Tier 3: Full walkthrough
+    hint_ladder[2] → Hint 3
+    solution_steps  → Full Walkthrough
 
-The third hint in the bank is retained for a later iteration. It is not required for the current Ask Tutor flow and is not sent to the model.
+Ask Why is the only AI capability in the current Demo Day flow. It may use the
+approved Full Walkthrough as protected server-side context after a correct
+answer, and the visible walkthrough after it has been opened. Future Ask Tutor
+must not receive the Full Walkthrough or any unrevealed hint.
 
 ## Additional information for AI evaluation
 
@@ -65,7 +72,7 @@ For Ask Why, use its own private reviewed scenario set and the process in [Ask W
 For a selected task or scenario, Content Lead confirms:
 
 1. learner-facing wording and Grade 5 suitability;
-2. accepted answer forms and the static Hint 1, Hint 2 and full walkthrough;
+2. accepted answer forms and the static Hint 1, Hint 2, Hint 3 and Full Walkthrough;
 3. expected safe behaviour for any scenario that will be used in an AI test;
 4. any important misconception or alternative approach that is deliberately included in that test;
 5. Uzbek Latin learner-facing wording.

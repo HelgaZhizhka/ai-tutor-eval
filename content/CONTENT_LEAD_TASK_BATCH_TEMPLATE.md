@@ -48,13 +48,18 @@ List mathematically correct alternatives that should be accepted. For example: `
 
 - **Hint 1 — smallest nudge:**
 - **Hint 2 — stronger guidance:**
-- **Optional further hint:**
+- **Hint 3 — final non-solution hint:**
 
-For the current Demo Day flow, Hint 1 and Hint 2 are the static in-attempt hints. The static `solution_steps` are the full walkthrough; an optional third hint is not required for this flow.
+For the current Demo Day flow, all three hints are static teacher-approved
+in-attempt support. The static `solution_steps` are the Full Walkthrough shown
+only after Hint 3 if the learner is still stuck.
 
 ### Common misconceptions and the appropriate tutor response _(optional)_
 
-Complete this section only if the task is selected for a future Ask Tutor evaluation and there is a likely, well-understood wrong turn that the AI should handle. It is not required for every task in the static Hint 1 → Hint 2 → Full Walkthrough flow.
+Complete this section only if the task is selected for a future Ask Tutor
+evaluation and there is a likely, well-understood wrong turn that the AI should
+handle. It is not required for every task in the static Hint 1 → Hint 2 → Hint
+3 → Full Walkthrough flow.
 
 | Misconception / likely wrong turn | Example student answer or reasoning | What should Ask Tutor do next? |
 | --- | --- | --- |

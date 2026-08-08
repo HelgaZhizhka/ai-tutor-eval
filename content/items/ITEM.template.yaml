@@ -20,7 +20,9 @@ accepted_answers:
 solution_steps:
   - PLACEHOLDER_SOLUTION_STEP
 hint_ladder:
-  - PLACEHOLDER_HINT
+  - PLACEHOLDER_HINT_1
+  - PLACEHOLDER_HINT_2
+  - PLACEHOLDER_HINT_3
 common_mistakes:
   - id: PLACEHOLDER_MISTAKE_ID
     description: PLACEHOLDER_MISTAKE_DESCRIPTION
