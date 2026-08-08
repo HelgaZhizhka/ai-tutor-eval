@@ -1,5 +1,11 @@
 # Ask Why Model Decision for Demo Day
 
+> **Historical paid baseline.** This record describes the Demo Day decision
+> made on 2026-08-03. The MVP now has a zero-inference-budget constraint, so it
+> must not be used as the current model selection. See the
+> [free-model evaluation plan](FREE_MODEL_ASK_WHY_EVALUATION_PLAN.md) for the
+> pending replacement comparison.
+
 **Status:** decision-ready for the August 8 internal demo  
 **Feature:** Ask Why only — not the separate future Ask Tutor mode
 

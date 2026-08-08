@@ -8,7 +8,7 @@ We test models only on teacher-reviewed mathematics tasks and learner scenarios.
 
 | Evaluation | What the AI does | Status |
 | --- | --- | --- |
-| **Ask Why** | After a learner completes a task or sees the full walkthrough, the learner may ask a short question about that task. | Completed for Demo Day. GPT-5.6 Terra is the selected automatic model; failures show a neutral retry message. |
+| **Ask Why** | After a learner completes a task or sees the full walkthrough, the learner may ask a short question about that task. | A previous paid Demo Day baseline selected GPT-5.6 Terra. The MVP now needs a separate free-model comparison before a new selection is made. |
 | **Ask Tutor** | During an active attempt and before Full Walkthrough, the AI may give one small next step without solving the task. Its exact entry point will be decided before implementation. | Not evaluated yet. This is a separate future test. |
 
 The learner should see one consistent AI assistant. Internally, Ask Why and Ask
@@ -29,15 +29,18 @@ Evidence-based model decision
 
 We check that a model does not reveal a protected answer, follows the required language and response limits, responds appropriately to common learner situations, and is clear for Grade 5.
 
-## Current result: Ask Why
+## Ask Why: previous baseline and current free-model work
 
-The Demo Day decision and the tested models are documented in [Ask Why Model Decision — 2026-08-03](docs/ASK_WHY_MODEL_DECISION_2026-08-03.md).
+The previous paid Demo Day decision and its tested models are documented in [Ask Why Model Decision — 2026-08-03](docs/ASK_WHY_MODEL_DECISION_2026-08-03.md). It is evidence from a prior configuration, not a free-model MVP decision.
+
+The planned zero-cost comparison is in [Free-model Ask Why evaluation plan](docs/FREE_MODEL_ASK_WHY_EVALUATION_PLAN.md). It pins six current `:free` candidates, uses the same private reviewed content, and records availability as well as response quality.
 
 Private task texts, scenarios, raw model answers and reviewer notes are deliberately kept outside this public repository.
 
 ## Documentation
 
 - [Ask Why evaluation method](docs/ASK_WHY_EVALUATION.md)
+- [Free-model Ask Why evaluation plan](docs/FREE_MODEL_ASK_WHY_EVALUATION_PLAN.md)
 - [Ask Why MVP implementation plan](docs/ASK_WHY_MVP_IMPLEMENTATION_PLAN.md)
 - [Ask Tutor evaluation plan](docs/ASK_TUTOR_EVALUATION.md)
 - [Content requirements for an evaluation](docs/CONTENT_CONTRACT.md)

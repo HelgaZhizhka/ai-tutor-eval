@@ -157,4 +157,24 @@ describe("OpenRouter request handling", () => {
     expect(body.provider).toEqual({ order: ["test-provider"], allow_fallbacks: false, data_collection: "deny" });
     expect(body.response_format).toBeUndefined();
   });
+
+  it("records a free-model rate limit without retrying it", async () => {
+    const requests: RequestInit[] = [];
+    const fetchImpl: typeof fetch = async (_request, init) => {
+      requests.push(init ?? {});
+      return new Response("rate limited", { status: 429 });
+    };
+
+    await expect(callOpenRouterText({
+      ...input,
+      configuration: { retryOnRateLimit: false },
+      fetchImpl,
+      wait: async () => undefined
+    })).rejects.toMatchObject({
+      name: "OpenRouterRequestError",
+      attemptCount: 1,
+      retryable: false
+    });
+    expect(requests).toHaveLength(1);
+  });
 });

@@ -41,6 +41,13 @@ export interface TextRequestConfiguration {
   maxOutputTokens?: number;
   reasoningEffort?: "none" | "minimal" | "low";
   providerOrder?: string[];
+  timeoutMs?: number;
+  /**
+   * Free-model requests count against a limited daily quota even when they
+   * fail. Evaluation runs therefore record a 429 instead of immediately
+   * consuming more quota with automatic retries.
+   */
+  retryOnRateLimit?: boolean;
 }
 
 export interface TutorRequestConfiguration {
@@ -214,6 +221,7 @@ export async function callOpenRouterText(input: {
 }): Promise<TextModelResponse> {
   const fetchImpl = input.fetchImpl ?? fetch;
   const wait = input.wait ?? ((milliseconds: number) => new Promise<void>((resolve) => setTimeout(resolve, milliseconds)));
+  const retryOnRateLimit = input.configuration?.retryOnRateLimit ?? true;
   let lastError: unknown;
 
   for (let attemptCount = 1; attemptCount <= MAX_REQUEST_ATTEMPTS; attemptCount += 1) {
@@ -226,7 +234,7 @@ export async function callOpenRouterText(input: {
           "Content-Type": "application/json",
           "X-Title": "Olympiad Academy AI Tutor Evaluation"
         },
-        signal: AbortSignal.timeout(30_000),
+        signal: AbortSignal.timeout(input.configuration?.timeoutMs ?? 30_000),
         body: JSON.stringify({
           model: input.model,
           messages: [
@@ -263,12 +271,14 @@ export async function callOpenRouterText(input: {
         };
       }
 
+      const retryable = RETRYABLE_STATUSES.has(response.status)
+        && (response.status !== 429 || retryOnRateLimit);
       lastError = new OpenRouterRequestError(
         `OpenRouter request failed (${response.status}): ${responseText}`,
         attemptCount,
-        RETRYABLE_STATUSES.has(response.status)
+        retryable
       );
-      if (!RETRYABLE_STATUSES.has(response.status) || attemptCount === MAX_REQUEST_ATTEMPTS) {
+      if (!retryable || attemptCount === MAX_REQUEST_ATTEMPTS) {
         throw lastError;
       }
     } catch (error) {

@@ -11,5 +11,6 @@ coverage/
 # Generated evaluation output.
 results/raw/
 results/ask-why-regression/
+results/free-ask-why/
 
 *.log

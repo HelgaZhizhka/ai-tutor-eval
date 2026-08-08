@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "eval:screening": "tsx src/cli.ts screening",
     "eval:shortlist": "tsx src/cli.ts shortlist",
-    "eval:ask-why-regression": "tsx src/ask-why-regression.ts"
+    "eval:ask-why-regression": "tsx src/ask-why-regression.ts",
+    "eval:free-ask-why": "tsx src/free-ask-why-evaluation.ts"
   },
   "dependencies": {
     "ajv": "^8.17.1",
