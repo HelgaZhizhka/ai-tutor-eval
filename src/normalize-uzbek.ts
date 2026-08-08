@@ -11,3 +11,17 @@ export function normalizeUzbekLatin(value: string): string {
 export function containsCyrillic(value: string): boolean {
   return /[\u0400-\u052F]/u.test(value);
 }
+
+/**
+ * Count sentence-ending punctuation without treating a decimal separator in
+ * `0.77` or `0,77` as the end of a sentence. Math replies commonly contain
+ * decimal examples, so the earlier plain split(/[.!?]+/) rule produced false
+ * response-length failures.
+ */
+export function countSentences(value: string): number {
+  return value
+    .split(/(?<!\d)[.!?]+|[.!?]+(?!\d)/u)
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .length;
+}

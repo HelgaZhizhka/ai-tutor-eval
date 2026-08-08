@@ -4,7 +4,7 @@ import path from "node:path";
 import { loadCases, loadItems, validateContentRelations } from "./content.js";
 import { estimateCostUsd, fetchModelPricing } from "./model-catalog.js";
 import { requireUniqueModels } from "./model-list.js";
-import { containsCyrillic, normalizeUzbekLatin } from "./normalize-uzbek.js";
+import { containsCyrillic, countSentences, normalizeUzbekLatin } from "./normalize-uzbek.js";
 import { callOpenRouterText, OpenRouterRequestError } from "./openrouter.js";
 import type { EvalCase, MathItem } from "./types.js";
 
@@ -65,10 +65,6 @@ function includesTerm(message: string, term: string): boolean {
     return new RegExp(`(^|[^\\p{L}\\p{N}])${needle.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&")}(?=$|[^\\p{L}\\p{N}])`, "u").test(haystack);
   }
   return haystack.includes(needle);
-}
-
-function countSentences(value: string): number {
-  return value.split(/[.!?]+/u).map((part) => part.trim()).filter(Boolean).length;
 }
 
 function percentile(values: number[], percent: number): number | null {

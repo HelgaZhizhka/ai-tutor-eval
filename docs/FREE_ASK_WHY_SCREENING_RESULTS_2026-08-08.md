@@ -1,6 +1,8 @@
 # Free Ask Why Screening Results — 2026-08-08
 
-**Status:** operational screening complete; no free-model finalist selected.
+**Status:** operational screening complete. No model qualified at this stage;
+the subsequent focused regression is recorded in the
+[free Ask Why model decision](FREE_ASK_WHY_MODEL_DECISION_2026-08-08.md).
 
 ## Configuration
 
