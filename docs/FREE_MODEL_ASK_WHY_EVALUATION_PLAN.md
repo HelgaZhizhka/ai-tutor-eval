@@ -39,6 +39,11 @@ model and result cannot be reproduced.
 - approved, licence-clear Grade 5 task data stored outside this public repo;
 - a maximum of two response sentences and 300 output tokens.
 
+The default reasoning setting is `none`. An exception is permitted only when a
+model rejects that setting and its smallest supported setting is recorded in
+the free profile and the final report. For example, the current
+`openai/gpt-oss-20b:free` endpoint requires `minimal` reasoning.
+
 No task text, learner messages, raw answers, reviewer notes or API key belong
 in Git.
 

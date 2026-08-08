@@ -35,12 +35,15 @@ The previous paid Demo Day decision and its tested models are documented in [Ask
 
 The planned zero-cost comparison is in [Free-model Ask Why evaluation plan](docs/FREE_MODEL_ASK_WHY_EVALUATION_PLAN.md). It pins six current `:free` candidates, uses the same private reviewed content, and records availability as well as response quality.
 
+The first operational screening is documented in [Free Ask Why screening results — 2026-08-08](docs/FREE_ASK_WHY_SCREENING_RESULTS_2026-08-08.md). No free-model finalist was selected from that run.
+
 Private task texts, scenarios, raw model answers and reviewer notes are deliberately kept outside this public repository.
 
 ## Documentation
 
 - [Ask Why evaluation method](docs/ASK_WHY_EVALUATION.md)
 - [Free-model Ask Why evaluation plan](docs/FREE_MODEL_ASK_WHY_EVALUATION_PLAN.md)
+- [Free Ask Why screening results — 2026-08-08](docs/FREE_ASK_WHY_SCREENING_RESULTS_2026-08-08.md)
 - [Ask Why MVP implementation plan](docs/ASK_WHY_MVP_IMPLEMENTATION_PLAN.md)
 - [Ask Tutor evaluation plan](docs/ASK_TUTOR_EVALUATION.md)
 - [Content requirements for an evaluation](docs/CONTENT_CONTRACT.md)

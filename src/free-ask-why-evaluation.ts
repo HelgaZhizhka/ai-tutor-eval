@@ -4,6 +4,7 @@ import path from "node:path";
 import { loadCases, loadItems, validateContentRelations } from "./content.js";
 import {
   FREE_ASK_WHY_SCREENING_MODELS,
+  FREE_ASK_WHY_REASONING_EFFORTS,
   FREE_MODEL_REQUEST_INTERVAL_MS,
   assertFreeDailyLimit,
   assertZeroCostFreeModels
@@ -238,7 +239,7 @@ async function main(): Promise<void> {
             context: buildContext(item, testCase),
             configuration: {
               maxOutputTokens: MAX_OUTPUT_TOKENS,
-              reasoningEffort: "none",
+              reasoningEffort: FREE_ASK_WHY_REASONING_EFFORTS[model] ?? "none",
               timeoutMs: 30_000,
               retryOnRateLimit: false
             }

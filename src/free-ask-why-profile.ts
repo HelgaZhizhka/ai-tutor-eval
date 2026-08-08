@@ -20,6 +20,15 @@ export const FREE_ASK_WHY_SCREENING_MODELS = [
 export const FREE_MODEL_DAILY_REQUEST_LIMIT = 50;
 export const FREE_MODEL_REQUEST_INTERVAL_MS = 3_200;
 
+/**
+ * The evaluation configuration is part of a model candidate. GPT-OSS rejects
+ * an explicit `reasoning: none`; its smallest supported setting is recorded
+ * here rather than silently changing the request during a run.
+ */
+export const FREE_ASK_WHY_REASONING_EFFORTS: Readonly<Record<string, "none" | "minimal">> = {
+  "openai/gpt-oss-20b:free": "minimal"
+};
+
 export function assertZeroCostFreeModels(models: readonly string[], pricing: Map<string, ModelPricing>): void {
   const invalid = models.filter((model) => {
     const modelPricing = pricing.get(model);

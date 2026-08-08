@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   FREE_ASK_WHY_SCREENING_MODELS,
+  FREE_ASK_WHY_REASONING_EFFORTS,
   assertFreeDailyLimit,
   assertZeroCostFreeModels
 } from "../src/free-ask-why-profile.js";
@@ -24,5 +25,9 @@ describe("free Ask Why profile", () => {
   it("does not allow a no-credit daily allowance to be exceeded", () => {
     expect(() => assertFreeDailyLimit(51)).toThrow("51 requests");
     expect(() => assertFreeDailyLimit(50)).not.toThrow();
+  });
+
+  it("records the minimum supported reasoning setting where a free model requires it", () => {
+    expect(FREE_ASK_WHY_REASONING_EFFORTS["openai/gpt-oss-20b:free"]).toBe("minimal");
   });
 });
